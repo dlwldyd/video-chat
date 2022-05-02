@@ -1,25 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import axios from 'axios';
+import ChatForm from './chatRoom/ChatForm';
 
 function App() {
-
-  const [test, setTest] = useState("");
-
-  const getData = async () => {
-    const testData = await (await axios({
-      url: '/hello',
-      method: 'GET',
-    })).data
-    setTest(testData);
-  }
-
-  useEffect(() => {
-    getData();
-  }, [])
-
+  
   return (
     <div>
-      <p>{test}</p>
+      <ChatForm/>
     </div>
   );
 }
