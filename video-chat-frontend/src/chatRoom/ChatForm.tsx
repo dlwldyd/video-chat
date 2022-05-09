@@ -22,7 +22,7 @@ function ChatForm() {
         const ws = new SockJS("http://localhost:8080/stomp");
         stomp.current = Stomp.over(ws);
         stomp.current.connect({}, () => {
-            stomp.current?.subscribe("/subs/room", (message) => {
+            stomp.current?.subscribe(`/exchange/chat.exchange/room.1`, (message) => {
                 setReceivedMsg(receivedMsg => [...receivedMsg, message.body]);
             });
         });
@@ -35,7 +35,7 @@ function ChatForm() {
     }, [receivedMsg])
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        stomp.current?.send("/chat/room", {}, msg);
+        stomp.current?.send(`/chat/room.1`, {}, msg);
         setMsg("");
     }
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,8 +46,8 @@ function ChatForm() {
         <div>
             <MsgContainer>
                 {receivedMsg.map((msg, idx) => 
-                <div>
-                    <span key={idx}>{msg}</span>
+                <div key={idx}>
+                    <span>{msg}</span>
                 </div>)}
             </MsgContainer>
             <InputPanel>
