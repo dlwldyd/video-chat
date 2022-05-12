@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class MessageListenerimpl implements MessageListener {
+public class MessageListenerLog implements MessageListener {
 
     @Override
     public void onMessage(Message message) {

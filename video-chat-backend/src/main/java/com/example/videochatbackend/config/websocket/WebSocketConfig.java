@@ -27,10 +27,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry
                 .setPathMatcher(new AntPathMatcher("."))
                 .setApplicationDestinationPrefixes("/chat")
-                .enableStompBrokerRelay("/queue", "/topic", "/exchange", "/amq/queue")
-                .setRelayHost("localhost")
-                .setRelayPort(61613)
-                .setClientLogin("guest")
-                .setClientPasscode("guest");
+                .enableStompBrokerRelay("/queue", "/topic", "/exchange", "/amq/queue");
     }
 }
