@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import styled, {keyframes} from "styled-components";
+import styled from "styled-components";
 import { FaRegPaperPlane } from "react-icons/fa";
 
 const MsgContainer = styled.div`
