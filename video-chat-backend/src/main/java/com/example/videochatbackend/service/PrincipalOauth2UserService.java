@@ -31,7 +31,6 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         MemberDetails memberDetails = new MemberDetails(super.loadUser(userRequest).getAttributes());
-//        log.info("attribute : {}", memberDetails.getAttributes());
 
         String provider = userRequest.getClientRegistration().getClientId();
         String providerId = memberDetails.getAttribute("sub");
