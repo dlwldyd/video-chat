@@ -1,5 +1,6 @@
 package com.example.videochatbackend.domain.entity;
 
+import com.example.videochatbackend.domain.enumtype.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,10 +28,13 @@ public class Member {
 
     private String nickname;
 
-    public Member(String username, String password, String email, String nickname, PasswordEncoder passwordEncoder) {
+    private Role role;
+
+    public Member(String username, String password, String email, String nickname, Role role, PasswordEncoder passwordEncoder) {
         this.username = username;
         this.password = passwordEncoder.encode(password);
         this.email = email;
         this.nickname = nickname;
+        this.role = role;
     }
 }

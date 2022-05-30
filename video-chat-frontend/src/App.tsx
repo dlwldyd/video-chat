@@ -1,5 +1,6 @@
 import ChatForm from './chatRoom/ChatForm';
 import Login from './login/Login';
+import Home from './home/Home';
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,7 +12,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<ChatForm/>} />
+        <Route path="/" element={<Home/>} />
         <Route path='/login' element={<Login/>} />
       </Routes>
     </Router>

@@ -20,7 +20,7 @@ const InputPanel = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-`;
+`
 
 const InputBox = styled.div`
     height: 35px;
@@ -33,7 +33,7 @@ const InputBox = styled.div`
     &:hover {
         cursor: text;
     }
-`;
+`
 
 const InputChat = styled.textarea`
     resize: none;
@@ -49,7 +49,7 @@ const InputChat = styled.textarea`
         outline: none;
         border-bottom: 2px solid ${props => props.theme.borderColor};
     }
-`;
+`
 
 const SendChatBtn = styled.button`
     height: 40px;
@@ -68,7 +68,7 @@ const SendChatBtn = styled.button`
     &:not(:active) {
         transition: background-color 0.3s ease-out;
     }
-`;
+`
 
 const MessageBox = styled.div`
     margin: 10px 15px;

@@ -8,7 +8,9 @@ const ThemeColor = {
   bgColor: "#ebdbb2",
   textColor: "#665c54",
   borderColor: "#928374",
-  clickColor: "#689d6a"
+  clickColor: "#689d6a",
+  navColor: "#1d2021",
+  navTextColor: "white",
 }
 
 const root = ReactDOM.createRoot(
