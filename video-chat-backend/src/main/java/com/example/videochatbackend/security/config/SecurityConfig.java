@@ -18,7 +18,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final PrincipalOauth2UserService principalOauth2UserService;
 
     @Value("${baseUrl}")
-    private String redirectUrl;
+    private String baseUrl;
 
     @Value("${origins}")
     private String origins;
@@ -46,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sameOrigin();
         http.oauth2Login() // 이걸 설정해야 /oauth2/authorization/google 로 요청을 받았을 때 구글로 로그인 하도록 리다이렉트함
                 .loginPage("/login")
-                .defaultSuccessUrl(redirectUrl)
+                .defaultSuccessUrl(baseUrl + "/fetch")
                 .userInfoEndpoint()
                 .userService(principalOauth2UserService);
     }
