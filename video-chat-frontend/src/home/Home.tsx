@@ -6,7 +6,7 @@ const publicUrl = process.env.PUBLIC_URL;
 const HomeContainer = styled.div`
     background-image: url(${publicUrl}/web/video-chat.png);
     width: 100%;
-    height: 98vh;
+    height: 100vh;
 `
 
 function Home() {    

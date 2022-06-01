@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { ThemeProvider } from 'styled-components';
 import App from './App';
 import "./index.css"
+import Modal from 'react-modal';
 
 const ThemeColor = {
   bgColor: "#ebdbb2",
@@ -23,3 +24,5 @@ root.render(
   </ThemeProvider>
   // </React.StrictMode>
 );
+
+Modal.setAppElement('#root');
