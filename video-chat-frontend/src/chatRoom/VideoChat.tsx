@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useParams } from "react-router";
 import styled from "styled-components";
 
 const Video = styled.video.attrs({autoPlay: true, playsInline: true, width: 400, height: 400})`
@@ -18,6 +19,8 @@ function VideoChat() {
     const myStream = useRef<MediaStream>();
 
     const videoEl = useRef<HTMLVideoElement>(null);
+
+    const {roomKey} = useParams();
 
     useEffect(() => {
         const getMedia = async () => {
@@ -42,7 +45,7 @@ function VideoChat() {
     return (
         <div>
             <Video ref={videoEl}/>
-            <Msg src="/chat" />
+            <Msg src={`/chat/${roomKey}`} />
         </div>
     );
 }

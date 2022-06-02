@@ -17,8 +17,8 @@ function App() {
         <Route path="/" element={<Home/>} />
         <Route path='/login' element={<Login/>} />
         <Route path='/fetch' element={<FetchMemberInfo/>} />
-        <Route path='/video-chat' element={<VideoChat/>} />
-        <Route path="/chat" element={<ChatForm />} />
+        <Route path='/video-chat/:roomKey' element={<VideoChat/>} />
+        <Route path="/chat/:roomKey" element={<ChatForm />} />
       </Routes>
     </Router>
   );

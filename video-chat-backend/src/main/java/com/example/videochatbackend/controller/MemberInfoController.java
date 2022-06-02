@@ -4,6 +4,7 @@ import com.example.videochatbackend.domain.dto.MemberInfoDto;
 import com.example.videochatbackend.domain.entity.Member;
 import com.example.videochatbackend.repository.MemberRepository;
 import com.example.videochatbackend.security.member.MemberDetails;
+import com.example.videochatbackend.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -19,7 +20,7 @@ import java.util.Optional;
 @Slf4j
 public class MemberInfoController {
 
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @GetMapping("/api/memberInfo")
     public MemberInfoDto memberInfo(@AuthenticationPrincipal MemberDetails memberDetails) {
@@ -28,10 +29,6 @@ public class MemberInfoController {
             return new MemberInfoDto(false);
         }
 
-        Optional<Member> byUsername = memberRepository.findByUsername(memberDetails.getUsername());
-        if (byUsername.isEmpty()) {
-            return new MemberInfoDto(false);
-        }
-        return new MemberInfoDto(byUsername.get());
+        return memberService.getMemberInfo(memberDetails.getUsername());
     }
 }

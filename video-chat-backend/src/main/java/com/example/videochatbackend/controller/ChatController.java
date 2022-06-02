@@ -1,10 +1,13 @@
 package com.example.videochatbackend.controller;
 
+import com.example.videochatbackend.domain.dto.ChatDto;
+import com.example.videochatbackend.security.member.MemberDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
@@ -17,8 +20,8 @@ public class ChatController {
 
     private final RabbitTemplate rabbitTemplate;
 
-    @MessageMapping("room.{roomId}")
-    public void message(String msg, @DestinationVariable String roomId) {
-        rabbitTemplate.convertAndSend(chatExchangeName, "room." + roomId, msg);
+    @MessageMapping("room.{roomKey}")
+    public void message(ChatDto msg, @DestinationVariable String roomKey) {
+        rabbitTemplate.convertAndSend(chatExchangeName, "room." + roomKey, msg);
     }
 }

@@ -3,6 +3,7 @@ import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import styled from "styled-components";
 import { FaRegPaperPlane } from "react-icons/fa";
+import { useParams } from "react-router";
 
 const MsgContainer = styled.div`
     padding-bottom: 50px;
@@ -14,7 +15,7 @@ const InputPanel = styled.div`
     left: 0%;
     right: 0%;
     bottom: 0%;
-    background-color: ${props => props.theme.bgColor};
+    background-color: ${props => props.theme.color.bgColor};
     padding-left: 20px;
     padding-right: 20px;
     display: flex;
@@ -24,7 +25,7 @@ const InputPanel = styled.div`
 
 const InputBox = styled.div`
     height: 35px;
-    background-color: ${props => props.theme.bgColor};
+    background-color: ${props => props.theme.color.bgColor};
     display: flex;
     padding: 0px 10px;
     align-items: center;
@@ -38,16 +39,16 @@ const InputBox = styled.div`
 const InputChat = styled.textarea`
     resize: none;
     width: 100%;
-    color: ${props => props.theme.textColor};
-    background-color: ${props => props.theme.bgColor};
+    color: ${props => props.theme.color.textColor};
+    background-color: ${props => props.theme.color.bgColor};
     border: none;
     overflow: hidden;
     vertical-align: middle;
     font-size: inherit;
-    border-bottom: 1px solid ${props => props.theme.borderColor};
+    border-bottom: 1px solid ${props => props.theme.color.borderColor};
     &:focus {
         outline: none;
-        border-bottom: 2px solid ${props => props.theme.borderColor};
+        border-bottom: 2px solid ${props => props.theme.color.borderColor};
     }
 `
 
@@ -55,15 +56,15 @@ const SendChatBtn = styled.button`
     height: 40px;
     width: 40px;
     margin-left: 10px;
-    background-color: ${props => props.theme.bgColor};
-    color: ${props => props.theme.textColor};
+    background-color: ${props => props.theme.color.bgColor};
+    color: ${props => props.theme.color.textColor};
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
     &:active {
-        background-color: ${props => props.theme.clickColor};
+        background-color: ${props => props.theme.color.clickColor};
     }
     &:not(:active) {
         transition: background-color 0.3s ease-out;
@@ -77,45 +78,57 @@ const MessageBox = styled.div`
 `
 
 const Message = styled.span`
-    font-family: "Noto Sans CJK KR";
-    color: ${props => props.theme.textColor};
+    font-family: ${props => props.theme.font};
+    color: ${props => props.theme.color.textColor};
     font-size: 14px;
 `
 
 function ChatForm() {
     const stomp = useRef<Stomp.Client>();
+    
     const inputChat = useRef<HTMLTextAreaElement>(null);
+    
     const [receivedMsg, setReceivedMsg] = useState<string[]>([]);
+    
     const [msg, setMsg] = useState("");
+
+    const {roomKey} = useParams();
+    
     useEffect(() => {
         const ws = new SockJS("http://localhost:8080/stomp");
         stomp.current = Stomp.over(ws);
         stomp.current.connect({}, () => {
-            stomp.current?.subscribe(`/exchange/chat.exchange/room.1`, (message) => {
-                setReceivedMsg(receivedMsg => [...receivedMsg, message.body.slice(1, -1)]);
+            stomp.current?.subscribe(`/exchange/chat.exchange/room.${roomKey}`, (message) => {
+                const {nickname, msg: msgBody} = JSON.parse(message.body);
+                setReceivedMsg(receivedMsg => [...receivedMsg, `${nickname} : ${msgBody}`]);
             });
         });
         return () => {
             stomp.current?.disconnect(() => {});
         }
-    }, []);
+    }, [roomKey]);
+    
     useEffect(() => {
         window.scrollBy({top: 100});
     }, [receivedMsg])
+    
     const onEnter = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if(event.key === "Enter") {
             event.preventDefault();
-            stomp.current?.send(`/chat/room.1`, {}, msg);
+            stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({nickname: `${sessionStorage.getItem("nickname")}`, msg: `${msg}`}));
             setMsg("");
         }
     }
+    
     const onChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setMsg(event.target.value);
     }
+    
     const onBtnClick = () => {
-        stomp.current?.send(`/chat/room.1`, {}, msg);
+        stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({nickname: `${sessionStorage.getItem("nickname")}`, msg: `${msg}`}));
         setMsg("");
     }
+    
     const onInputBoxClick = () => {
         inputChat.current?.focus();
     }

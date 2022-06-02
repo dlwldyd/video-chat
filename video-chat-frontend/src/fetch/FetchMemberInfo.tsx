@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
 
 const Box = styled.div`
@@ -12,30 +13,34 @@ const Box = styled.div`
 
 const Loading = styled.div`
     font-size: 100px;
-    font-family: "Noto Sans CJK KR";
+    font-family: ${props => props.theme.font};;
 `
 
 function FetchMemberInfo() {
+
+    const navigate = useNavigate();
+
     useEffect(() => {
         const getMemberInfo = async () => {
             const json = await (await axios.get("http://localhost:8080/api/memberInfo", {
                 withCredentials: true
             })).data;
             sessionStorage.setItem("authenticated", json.authenticated);
-            if(json.authenticated === "true") {
+            if(json.authenticated) {
                 sessionStorage.setItem("nickname", json.nickname);
                 sessionStorage.setItem("email", json.email);
             }
-            window.location.replace("/");
+            navigate("/", {replace: true});
         }
         try {
             getMemberInfo();
         } catch(err: any) {
             console.log(err);
             alert("로그인 실패");
-            window.location.replace("/");
+            navigate("/", {replace: true});
         }
-    }, []);
+    }, [navigate]);
+
     return (
         <Box>
             <Loading>로그인 중..</Loading>
