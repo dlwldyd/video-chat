@@ -12,7 +12,7 @@ public class MemberInfoDto {
 
     private boolean authenticated;
 
-    private String email;
+    private String username;
 
     private String nickname;
 
@@ -22,7 +22,7 @@ public class MemberInfoDto {
 
     public MemberInfoDto(Member member) {
         this.authenticated = true;
-        this.email = member.getEmail();
+        this.username = member.getUsername();
         this.nickname = member.getNickname();
     }
 }

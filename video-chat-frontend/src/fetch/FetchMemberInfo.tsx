@@ -27,7 +27,7 @@ function FetchMemberInfo() {
             })).data;
             sessionStorage.setItem("authenticated", json.authenticated);
             if(json.authenticated) {
-                sessionStorage.setItem("nickname", json.nickname);
+                sessionStorage.setItem("username", json.username);
                 sessionStorage.setItem("email", json.email);
             }
             navigate("/", {replace: true});

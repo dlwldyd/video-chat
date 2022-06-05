@@ -1,9 +1,6 @@
 package com.example.videochatbackend.domain.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -11,10 +8,23 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class ChatDto {
+
+    @NotEmpty
+    private String type;
+
+    private String from;
+
+    private String target;
+
+    private String streamId;
 
     private String nickname;
 
-    @NotEmpty
     private String msg;
+
+    private Object iceCandidate;
+
+    private Object sdp;
 }
