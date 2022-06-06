@@ -28,23 +28,31 @@ public class ChatRoom {
     private String password;
 
     @NotEmpty
-    private String routingKey;
+    private String roomKey;
 
-    public ChatRoom(String roomName, String routingKey) {
-        this.roomName = roomName;
-        this.routingKey = routingKey;
+    private Integer count;
+
+    public void setCount(Integer count) {
+        this.count = count;
     }
 
-    public ChatRoom(String roomName, String password, String routingKey) {
+    public ChatRoom(String roomName, String routingKey, Integer count) {
+        this.roomName = roomName;
+        this.roomKey = routingKey;
+        this.count = count;
+    }
+
+    public ChatRoom(String roomName, String password, String routingKey, Integer count) {
         this.roomName = roomName;
         this.password = password;
-        this.routingKey = routingKey;
+        this.roomKey = routingKey;
+        this.count = count;
     }
 
     public static ChatRoom create(ChatRoomDto chatRoomDto, PasswordEncoder passwordEncoder) {
         if (chatRoomDto.getPassword().isEmpty()) {
-            return new ChatRoom(chatRoomDto.getRoomName(), UUID.randomUUID().toString());
+            return new ChatRoom(chatRoomDto.getRoomName(), UUID.randomUUID().toString(), 0);
         }
-        return new ChatRoom(chatRoomDto.getRoomName(), passwordEncoder.encode(chatRoomDto.getPassword()), UUID.randomUUID().toString());
+        return new ChatRoom(chatRoomDto.getRoomName(), passwordEncoder.encode(chatRoomDto.getPassword()), UUID.randomUUID().toString(), 0);
     }
 }

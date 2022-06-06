@@ -244,7 +244,7 @@ function VideoChat() {
                     },
                 });
                 videoEl.current.srcObject = localStream.current;
-                stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "join", from, nickname}));
+                stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "join", from, nickname, roomKey, streamId: localStream.current.id}));
             } catch(err: any) {
                 console.log(err);
             }
@@ -258,16 +258,15 @@ function VideoChat() {
         }
 
         const leave = () => {
-            stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "leave", from, streamId: localStream.current?.id}));
-            myPeerConnections.forEach(myPeerConnection => disconnect(myPeerConnection));
-            localStream.current?.getTracks().forEach(track => {
-                track.stop();
+            stomp.current?.disconnect(() => {
+                myPeerConnections.forEach(myPeerConnection => disconnect(myPeerConnection));
+                localStream.current?.getTracks().forEach(track => {
+                    track.stop();
+                });
             });
-            stomp.current?.disconnect(() => {});
         };
 
         joinRoom();
-        window.addEventListener("beforeunload", leave);
 
         return leave;
 
