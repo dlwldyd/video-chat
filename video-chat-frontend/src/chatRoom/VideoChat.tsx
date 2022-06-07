@@ -3,7 +3,7 @@ import styled from "styled-components";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { FaRegPaperPlane } from "react-icons/fa";
-import { useParams } from "react-router";
+import { useLocation } from "react-router";
 
 const InputPanel = styled.div`
     position: sticky;
@@ -85,7 +85,8 @@ const ChatLog = styled.div`
     overflow: auto;
 `
 
-const Video = styled.video.attrs({autoPlay: true, playsInline: true, width: 400, height: 400})`
+const Video = styled.video.attrs({autoPlay: true, playsInline: true, width: 640, height: 360})`
+    width: 100%;
 `
 
 const Msg = styled.div`
@@ -93,8 +94,8 @@ const Msg = styled.div`
     right: 0;
     top: 0;
     bottom: 0;
-    border: 1px solid blue;
-    width: 500px;
+    border: 1px solid gray;
+    width: 25vw;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -102,14 +103,20 @@ const Msg = styled.div`
 `
 
 const VideoGrid = styled.div`
+    height: 100vh;
+    width: 80vw;
+    justify-content: center;
     display: grid;
+    grid-template-columns: repeat(3, 20vw);
+    grid-auto-rows: 32vh;
+    gap: 3px;
 `
 
 function VideoChat() {
 
     const videoEl = useRef<HTMLVideoElement>(null);
 
-    const {roomKey} = useParams();
+    const {state: roomKey} = useLocation();
 
     const stomp = useRef<Stomp.Client>();
     
@@ -302,9 +309,13 @@ function VideoChat() {
     return (
         <div>
             <VideoGrid>
-                <Video ref={videoEl}/>
+                <div>
+                    <Video ref={videoEl}/>
+                </div>
                 {Array.from(remoteStreams.values()).map((remoteStream, idx) => 
-                    <Video ref={video => video ? video.srcObject = remoteStream : null} key={idx} />
+                    <div>
+                        <Video ref={video => video ? video.srcObject = remoteStream : null} key={idx} />
+                    </div>
                 )}
             </VideoGrid>
             <Msg>

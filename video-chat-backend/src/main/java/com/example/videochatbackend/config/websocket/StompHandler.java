@@ -39,7 +39,9 @@ public class StompHandler implements ChannelInterceptor {
             }
         } else if (accessor.getCommand() == StompCommand.DISCONNECT) {
             ChatDto chatDto = chatRoomService.leave((String) message.getHeaders().get("simpSessionId"));
-            rabbitTemplate.convertAndSend(chatExchangeName, "room." + chatDto.getRoomKey(), chatDto);
+            if (chatDto != null) {
+                rabbitTemplate.convertAndSend(chatExchangeName, "room." + chatDto.getRoomKey(), chatDto);
+            }
         }
         return ChannelInterceptor.super.preSend(message, channel);
     }

@@ -163,7 +163,7 @@ function Nav() {
             }, {
                 withCredentials: true,
             })).data;
-            navigate(`/video-chat/${json.roomKey}`);
+            navigate(`/video-chat`, {state: json.roomKey});
         }
         getRoomKey();
     }
