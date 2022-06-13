@@ -9,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 public class ChatRoomDto {
 
-    private String roomId;
+    private long roomId;
 
     @NotEmpty
     private String roomName;

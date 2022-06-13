@@ -7,7 +7,7 @@ import { useNavigate } from "react-router";
 
 const ButtonSet = styled.div`
     display: flex;
-    width: 1fr;
+    width: 320px;
     justify-content: space-between;
     align-items: center;
 `
@@ -31,7 +31,7 @@ const HomeButton = styled(Link)`
     font-size: 30px;
     font-weight: bolder;
     text-decoration: none;
-    margin-right: 50px;
+    margin-right: 35px;
 `
 
 const LoginButton = styled(Link)`
@@ -43,6 +43,18 @@ const LoginButton = styled(Link)`
 `
 
 const CreateChatRoom = styled.button`
+    all: unset;
+    font-family: ${props => props.theme.font};
+    font-weight: normal;
+    font-size: 17px;
+    color: #a89984;
+    &:hover {
+        color: #fb4934;
+        cursor: pointer;
+    }
+`
+
+const SearchChat = styled(Link)`
     all: unset;
     font-family: ${props => props.theme.font};
     font-weight: normal;
@@ -194,6 +206,7 @@ function Nav() {
                 <ButtonSet>
                     <HomeButton to="/">VChat</HomeButton>
                     <CreateChatRoom onClick={onClick}>채팅방 생성</CreateChatRoom>
+                    <SearchChat to="/search">채팅참여</SearchChat>
                 </ButtonSet>
                 {loginState ? <LogoutButton onClick={onLogout} to="/">Logout</LogoutButton> : <LoginButton to="/login">Login</LoginButton>}
             </NavContainer>

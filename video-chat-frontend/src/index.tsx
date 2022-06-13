@@ -8,13 +8,15 @@ import Modal from 'react-modal';
 
 const MyTheme = {
   color: {
-    bgColor: "#ebdbb2",
+    bgColor: "#f3efe4",
     textColor: "#665c54",
     borderColor: "#928374",
     clickColor: "#689d6a",
     navColor: "#1d2021",
     navTextColor: "white",
     btnColor: "#d5c4a1",
+    tableBorderColor: "#dadfec",
+    tableBgColor: "#ecf0fa",
   },
   font: "Noto Sans CJK KR"
 }

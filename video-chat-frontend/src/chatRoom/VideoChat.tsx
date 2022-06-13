@@ -1,17 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { FaRegPaperPlane } from "react-icons/fa";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 const InputPanel = styled.div`
     position: sticky;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 6vh;    
+    height: 60px;    
     background-color: ${props => props.theme.color.bgColor};
+    border-top: 2px solid #e6d5d5;
     padding-left: 20px;
     padding-right: 20px;
     display: flex;
@@ -21,7 +22,7 @@ const InputPanel = styled.div`
 `
 
 const InputBox = styled.div`
-    height: 5vh;
+    height: 50px;
     background-color: ${props => props.theme.color.bgColor};
     display: flex;
     padding: 0px 10px;
@@ -70,7 +71,7 @@ const SendChatBtn = styled.button`
 
 const MessageBox = styled.div`
     margin-left: 15px;
-    height: 3vh;
+    height: 30px;
     display: flex;
     align-items: center;
 `
@@ -82,11 +83,12 @@ const Message = styled.span`
 `
 
 const ChatLog = styled.div`
-    overflow: auto;
+    overflow: auto;    
 `
 
-const Video = styled.video.attrs({autoPlay: true, playsInline: true, width: 640, height: 360})`
+const Video = styled.video.attrs({autoPlay: true, playsInline: true, width: 640, height: 320})`
     width: 100%;
+    height: 100%;
 `
 
 const Msg = styled.div`
@@ -94,22 +96,29 @@ const Msg = styled.div`
     right: 0;
     top: 0;
     bottom: 0;
-    border: 1px solid gray;
-    width: 25vw;
+    border-left: 4px solid #e6d5d5;
+    width: 460px;
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    background-color: whitesmoke;
 `
 
 const VideoGrid = styled.div`
-    height: 100vh;
-    width: 80vw;
+    height: 980px;
+    width: 1400px;
     justify-content: center;
     display: grid;
-    grid-template-columns: repeat(3, 20vw);
-    grid-auto-rows: 32vh;
+    grid-template-columns: repeat(3, 400px);
+    grid-auto-rows: 320px;
     gap: 3px;
+    padding-right: 460px;
+    padding-top: 10px;
+`
+
+const Stream = styled.div`
+    background-color: black;
 `
 
 function VideoChat() {
@@ -124,7 +133,7 @@ function VideoChat() {
     
     const [receivedMsg, setReceivedMsg] = useState<string[]>([]);
 
-    const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map<string, MediaStream>());
+    const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream | null>>(new Map<string, MediaStream | null>());
     
     const [msg, setMsg] = useState("");
 
@@ -133,7 +142,9 @@ function VideoChat() {
     const localStream = useRef<MediaStream>();
 
     const nickname = sessionStorage.getItem("nickname");
-   
+
+    const navigate = useNavigate();
+
     useEffect(() => {
 
         const from = sessionStorage.getItem("username");
@@ -157,6 +168,11 @@ function VideoChat() {
                         setReceivedMsg(receivedMsg => [...receivedMsg, `${json.nickname} : ${json.msg}`]);
                     } else if(json.type === "join") {
                         if(json.from !== from) {
+                            setRemoteStreams(remoteStreams => {
+                                const updated = new Map<string, MediaStream | null>(remoteStreams);
+                                updated.set(json.streamId, null);
+                                return updated;
+                            });
                             makeOffer(json.from);
                         }
                     } else if(json.type === "offer") {
@@ -177,7 +193,7 @@ function VideoChat() {
                             disconnect(myPeerConnection);
                         }
                         setRemoteStreams(remoteStreams => {
-                            const updated = new Map<string, MediaStream>(remoteStreams);
+                            const updated = new Map<string, MediaStream | null>(remoteStreams);
                             updated.delete(json.streamId);
                             return updated;
                         })
@@ -232,15 +248,18 @@ function VideoChat() {
 
         const handleTrack = (data: RTCTrackEvent) => {
             setRemoteStreams(remoteStreams => {
-                const updated = new Map<string, MediaStream>(remoteStreams);
+                const updated = new Map<string, MediaStream | null>(remoteStreams);
                 updated.set(data.streams[0].id, data.streams[0]);
                 return updated;
             });
         }
 
         const joinRoom = async () => {
-            try{
-                handleStompConnection();
+            handleStompConnection();
+            if(!videoEl.current) {
+                navigate("/", {replace: true});
+            }
+            try{                
                 if(!videoEl.current) {
                     return;
                 }
@@ -254,6 +273,12 @@ function VideoChat() {
                 stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "join", from, nickname, roomKey, streamId: localStream.current.id}));
             } catch(err: any) {
                 console.log(err);
+                if(!videoEl.current) {
+                    return;
+                }
+                localStream.current = new MediaStream();
+                videoEl.current.srcObject = localStream.current;
+                stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "join", from, nickname, roomKey, streamId: localStream.current.id}));
             }
         }
 
@@ -277,7 +302,7 @@ function VideoChat() {
 
         return leave;
 
-    }, [roomKey, nickname]);
+    }, [roomKey, nickname, navigate]);
     
     useEffect(() => {
         if(chatLog.current) {
@@ -294,7 +319,7 @@ function VideoChat() {
     }
     
     const onChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setMsg(event.target.value);
+        setMsg(msg => event.target.value);
     }
     
     const onBtnClick = () => {
@@ -309,13 +334,13 @@ function VideoChat() {
     return (
         <div>
             <VideoGrid>
-                <div>
+                <Stream>
                     <Video ref={videoEl}/>
-                </div>
+                </Stream>
                 {Array.from(remoteStreams.values()).map((remoteStream, idx) => 
-                    <div>
+                    <Stream>
                         <Video ref={video => video ? video.srcObject = remoteStream : null} key={idx} />
-                    </div>
+                    </Stream>
                 )}
             </VideoGrid>
             <Msg>

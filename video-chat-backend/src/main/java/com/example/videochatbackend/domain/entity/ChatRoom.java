@@ -55,4 +55,8 @@ public class ChatRoom {
         }
         return new ChatRoom(chatRoomDto.getRoomName(), passwordEncoder.encode(chatRoomDto.getPassword()), UUID.randomUUID().toString(), 0);
     }
+
+    public boolean validate(String password, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.encode(password).equals(this.password);
+    }
 }
