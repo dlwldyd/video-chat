@@ -177,77 +177,19 @@ function SearchRoom() {
             <div>
                 <Table>
                     <Thead>
-                        <ThRoomName>방 이름</ThRoomName>
-                        <ThNumber>인원</ThNumber>
+                        <Tr>
+                            <ThRoomName>방 이름</ThRoomName>
+                            <ThNumber>인원</ThNumber>
+                        </Tr>
                     </Thead>
                     <tbody>
                         {rooms.map((room, idx) => 
-                        <Tr>
+                        <Tr key={idx}>
                             {room.locked ? 
-                                <TdRoomName key={idx}><Room data-roomid={room.roomId} data-roomname={room.roomName} onClick={onClick}>{room.roomName} <FaLock /></Room></TdRoomName> : 
-                                <TdRoomName key={idx}><Room data-roomid={room.roomId} data-roomname={room.roomName} onClick={onClick}>{room.roomName} </Room></TdRoomName>}
+                                <TdRoomName><Room data-roomid={room.roomId} data-roomname={room.roomName} onClick={onClick}>{room.roomName} <FaLock /></Room></TdRoomName> : 
+                                <TdRoomName><Room data-roomid={room.roomId} data-roomname={room.roomName} onClick={onClick}>{room.roomName} </Room></TdRoomName>}
                             <TdNumber>{room.count}/9</TdNumber>
                         </Tr>)}
-                        {/* <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello <FaLock /></Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr>
-                        <Tr>
-                            <TdRoomName><Room data-roomId="test">hello </Room></TdRoomName>
-                            <TdNumber>2/9</TdNumber>
-                        </Tr> */}
                     </tbody>
                 </Table>            
             </div>

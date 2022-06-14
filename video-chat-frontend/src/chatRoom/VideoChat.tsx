@@ -134,6 +134,8 @@ function VideoChat() {
     const [receivedMsg, setReceivedMsg] = useState<string[]>([]);
 
     const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream | null>>(new Map<string, MediaStream | null>());
+
+    const [remoteVideos, setRemoteVideos] = useState<JSX.Element[]>([]);
     
     const [msg, setMsg] = useState("");
 
@@ -177,6 +179,11 @@ function VideoChat() {
                         }
                     } else if(json.type === "offer") {
                         if(from === json.target) {
+                            setRemoteStreams(remoteStreams => {
+                                const updated = new Map<string, MediaStream | null>(remoteStreams);
+                                updated.set(json.streamId, null);
+                                return updated;
+                            });
                             makeAnswer(json.from, json.sdp);
                         }
                     } else if(json.type === "answer") {
@@ -199,7 +206,35 @@ function VideoChat() {
                         })
                     }
                 });
+                joinRoom();
             });
+        }
+
+        const joinRoom = async () => {
+            if(!videoEl.current) {
+                navigate("/", {replace: true});
+            }
+            try{                
+                if(!videoEl.current) {
+                    return;
+                }
+                localStream.current = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: {
+                        facingMode: "user"
+                    },
+                });
+                videoEl.current.srcObject = localStream.current;
+                stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "join", from, nickname, roomKey, streamId: localStream.current.id}));
+            } catch(err: any) {
+                console.log(err);
+                if(!videoEl.current) {
+                    return;
+                }
+                localStream.current = new MediaStream();
+                videoEl.current.srcObject = localStream.current;
+                stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "join", from, nickname, roomKey, streamId: localStream.current.id}));
+            }
         }
 
         const makeAnswer = async (target: string, receivedOffer: RTCSessionDescriptionInit) => {
@@ -239,10 +274,16 @@ function VideoChat() {
             if(!newPeerConnection) {
                 return;
             }
-            newPeerConnection.onnegotiationneeded = async () => {
-                const offer = await newPeerConnection.createOffer();
+            if(localStream.current?.getTracks().length === 0) {
+                const offer = await newPeerConnection.createOffer({offerToReceiveAudio: true, offerToReceiveVideo: true});
                 await newPeerConnection.setLocalDescription(offer);
-                stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "offer", from, target, sdp: newPeerConnection.localDescription})); 
+                stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "offer", from, target, streamId: localStream.current.id, sdp: newPeerConnection.localDescription})); 
+            } else {
+                newPeerConnection.onnegotiationneeded = async () => {
+                    const offer = await newPeerConnection.createOffer();
+                    await newPeerConnection.setLocalDescription(offer);
+                    stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "offer", from, target, streamId: localStream.current?.id, sdp: newPeerConnection.localDescription})); 
+                }
             }
         }
 
@@ -252,34 +293,6 @@ function VideoChat() {
                 updated.set(data.streams[0].id, data.streams[0]);
                 return updated;
             });
-        }
-
-        const joinRoom = async () => {
-            handleStompConnection();
-            if(!videoEl.current) {
-                navigate("/", {replace: true});
-            }
-            try{                
-                if(!videoEl.current) {
-                    return;
-                }
-                localStream.current = await navigator.mediaDevices.getUserMedia({
-                    audio: true,
-                    video: {
-                        facingMode: "user"
-                    },
-                });
-                videoEl.current.srcObject = localStream.current;
-                stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "join", from, nickname, roomKey, streamId: localStream.current.id}));
-            } catch(err: any) {
-                console.log(err);
-                if(!videoEl.current) {
-                    return;
-                }
-                localStream.current = new MediaStream();
-                videoEl.current.srcObject = localStream.current;
-                stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "join", from, nickname, roomKey, streamId: localStream.current.id}));
-            }
         }
 
         const disconnect = (peerConnection: RTCPeerConnection) => {
@@ -298,7 +311,7 @@ function VideoChat() {
             });
         };
 
-        joinRoom();
+        handleStompConnection();
 
         return leave;
 
@@ -308,7 +321,19 @@ function VideoChat() {
         if(chatLog.current) {
             chatLog.current.scrollTop = chatLog.current.scrollHeight;
         }
-    }, [receivedMsg])
+    }, [receivedMsg]);
+
+    useEffect(() => {
+        setRemoteVideos(remoteVideos => Array.from(remoteStreams.values()).map((remoteStream, idx) => 
+            <Stream key={idx}>
+                <Video ref={video => {
+                    if(video) {
+                        video.srcObject = remoteStream;
+                    }
+                }} />
+            </Stream>
+        ))
+    }, [remoteStreams]);
     
     const onEnter = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if(event.key === "Enter") {
@@ -335,13 +360,9 @@ function VideoChat() {
         <div>
             <VideoGrid>
                 <Stream>
-                    <Video ref={videoEl}/>
+                    <Video ref={videoEl} />
                 </Stream>
-                {Array.from(remoteStreams.values()).map((remoteStream, idx) => 
-                    <Stream>
-                        <Video ref={video => video ? video.srcObject = remoteStream : null} key={idx} />
-                    </Stream>
-                )}
+                {remoteVideos}
             </VideoGrid>
             <Msg>
                 <ChatLog ref={chatLog}>

@@ -11,6 +11,6 @@ public class MessageListenerLog implements MessageListener {
 
     @Override
     public void onMessage(Message message) {
-        log.info("received message : {}", message);
+        log.info("received message : {}", new String(message.getBody()));
     }
 }
