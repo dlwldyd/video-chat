@@ -167,17 +167,18 @@ function Nav() {
         event.preventDefault();
         if(roomName === "") {
             alert("방 이름을 입력해주세요");
+        } else {
+            const getRoomKey = async () => {
+                const json = await (await axios.post("http://localhost:8080/api/createRoom", {
+                    roomName,
+                    password,
+                }, {
+                    withCredentials: true,
+                })).data;
+                navigate(`/video-chat`, {state: json.roomKey});
+            }
+            getRoomKey();
         }
-        const getRoomKey = async () => {
-            const json = await (await axios.post("http://localhost:8080/api/createRoom", {
-                roomName,
-                password,
-            }, {
-                withCredentials: true,
-            })).data;
-            navigate(`/video-chat`, {state: json.roomKey});
-        }
-        getRoomKey();
     }
 
     const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,14 +188,34 @@ function Nav() {
     const onPassChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(password => event.target.value);
     }
+    
+    const onEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if(event.key === "Enter") {
+            event.preventDefault();
+            if(roomName === "") {
+                alert("방 이름을 입력해주세요");
+            } else {
+                const getRoomKey = async () => {
+                    const json = await (await axios.post("http://localhost:8080/api/createRoom", {
+                        roomName,
+                        password,
+                    }, {
+                        withCredentials: true,
+                    })).data;
+                    navigate(`/video-chat`, {state: json.roomKey});
+                }
+                getRoomKey();
+            }
+        }
+    }
 
     const modalContent = (
         <ModalContainer action="http://localhost:8080/api/createRoom" method="POST" onSubmit={onSubmit}>
             <InputSet>
                 <Label htmlFor="roomName">방 이름</Label>
-                <Input id="roomName" value={roomName} onChange={onNameChange} />
+                <Input id="roomName" value={roomName} onChange={onNameChange} onKeyDown={onEnter} />
                 <Label htmlFor="password">비밀번호(선택)</Label>
-                <Input id="password" type="password" value={password} onChange={onPassChange}/>
+                <Input id="password" type="password" value={password} onChange={onPassChange} onKeyDown={onEnter} />
             </InputSet>
             <SubmitBtn type="submit">만들기</SubmitBtn>
         </ModalContainer>

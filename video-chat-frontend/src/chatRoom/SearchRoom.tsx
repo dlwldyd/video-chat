@@ -2,10 +2,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Nav from "../navigator/Nav";
-import { FaLock, FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { FaLock, FaAngleLeft, FaAngleRight, FaSearch } from "react-icons/fa";
 import { useNavigate } from 'react-router';
 import queryString from 'query-string';
 import { Link } from "react-router-dom";
+import ModalForm from "../modal/ModalForm";
 
 const Container = styled.div`
     font-family: ${props => props.theme.font};
@@ -111,6 +112,71 @@ const Angle = styled(Link)`
     }
 `
 
+const ModalContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    font-family: ${props => props.theme.font};    
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-end;
+`
+
+const Label = styled.label`
+    width: 380px;
+    font-size: larger;
+    &:hover {
+        cursor: pointer;
+    }
+`
+
+const InputText = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+`
+
+const Input = styled.input`
+    width: 380px;
+    height: 38px;
+    border-radius: 5px;
+    border: 1px solid ${props => props.theme.color.borderColor};
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 17px;
+    &:focus {
+        border: 3px solid #458588;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+`
+
+const SearchBtn = styled.button`
+    all: unset;
+    border-radius: 10px;
+    background-color: ${props => props.theme.color.btnColor};
+    color: white;
+    font-size: 20px;
+    margin-right: 45px;
+    padding: 5px 20px;
+    &:hover {
+        cursor: pointer;
+    }
+`
+
+const SearchModalBtn = styled.div`
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover {
+        cursor: pointer;
+    }
+`
+
 interface ClickEvent extends React.MouseEvent<HTMLSpanElement> {
     target: HTMLSpanElement;
 }
@@ -127,7 +193,11 @@ function SearchRoom() {
 
     const navigate = useNavigate();
 
-    const {page} = queryString.parse(window.location.search);
+    const {page, roomName} = queryString.parse(window.location.search);
+
+    const [modalOpen, setModalOpen] = useState(false);
+
+    const [searchRoomName, setSearchRoomName] = useState("");
 
     const onClick = (event: ClickEvent) => {
         
@@ -148,19 +218,59 @@ function SearchRoom() {
         getRoomKey();
     }
 
+    const onOpen = () => {
+        setModalOpen(modalOpen => true);
+    }
+
+    const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchRoomName(searchRoom => event.target.value);
+    }
+
+    const onSearch = () => {
+        navigate(`/search?roomName=${searchRoomName}`);
+        setModalOpen(modalOpen => false);
+    }
+
+    const onEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if(event.key === "Enter") {
+            event.preventDefault();
+            navigate(`/search?roomName=${searchRoomName}`);
+            setModalOpen(modalOpen => false);
+        }
+    }
+
+    const modalContent = (
+        <ModalContainer>
+            <InputText>
+                <Label htmlFor="search">방 이름</Label>
+                <Input value={searchRoomName} id="search" onChange={onChange} onKeyDown={onEnter} />
+            </InputText>
+            <SearchBtn onClick={onSearch}>검색</SearchBtn>
+        </ModalContainer>
+    );
+
     useEffect(() => {
 
         const getRoomInfo = async () => {
-            const json = await (await axios.get(`http://localhost:8080/api/roomInfo?page=${page}`, {
-                withCredentials: true
-            })).data;
+            const json = await (
+                roomName ? 
+                    await axios.get(`http://localhost:8080/api/roomInfo?page=${page}&roomName=${roomName}`, {
+                        withCredentials: true
+                    }) : 
+                    await axios.get(`http://localhost:8080/api/roomInfo?page=${page}`, {
+                        withCredentials: true
+                    })
+            ).data;
+            // const json = await (await axios.get(`http://localhost:8080/api/roomInfo?page=${page}`, {
+            //     withCredentials: true
+            // })).data;
             setRooms(rooms => [...json.content]);
             setCurrentPage(currentPage => json.pageable.pageNumber+1);
             setTotalPages(totalPages => json.totalPages);
-            const begin = Math.floor((currentPage-1)/10)*10+1;
+            const begin = Math.floor(json.pageable.pageNumber/10)*10+1;
             if(begin !== pageList[0]) {
                 const arr: number[] = [];
-                for (let i = 0; i < Math.min(10, totalPages-begin+1); i++) {
+                for (let i = 0; i < Math.min(10, json.totalPages-begin+1); i++) {
                     arr.push(begin+i);
                 }
                 setPageList(pageList => [...arr]);
@@ -169,12 +279,14 @@ function SearchRoom() {
 
         getRoomInfo();
 
-    }, [page, currentPage, pageList, totalPages]);
+    }, [page, roomName, pageList]);
 
     return (
         <Container>
             <Nav />
+            <ModalForm isOpen={modalOpen} setIsOpen={setModalOpen} content={modalContent}></ModalForm>
             <div>
+                <SearchModalBtn onClick={onOpen}><FaSearch /></SearchModalBtn>
                 <Table>
                     <Thead>
                         <Tr>
@@ -194,13 +306,43 @@ function SearchRoom() {
                 </Table>            
             </div>
             <Pagination>
-                {currentPage > 10 ? <Angle to={`/search?page=${Math.floor((currentPage-1)/10)*10-1}`}><FaAngleLeft /></Angle> : null}
+                {currentPage > 10 ? 
+                    <Angle to={roomName ? 
+                        `/search?page=${Math.floor((currentPage-1)/10)*10-1}&roomName=${roomName}` : 
+                        `/search?page=${Math.floor((currentPage-1)/10)*10-1}`}>
+                    <FaAngleLeft />
+                    </Angle> : 
+                    null}
                 <Page>
                     {pageList.map((page, idx) => 
-                    currentPage === page ? <PageNum key={idx} to={`/search?page=${page-1}`} style={{"backgroundColor" : "#261a31", "color": "white"}}>{page}</PageNum> : <PageNum key={idx} to={`/search?page=${page-1}`}>{page}</PageNum>
-                    )}
+                    currentPage === page ? 
+                        <PageNum 
+                            key={idx} 
+                            to={roomName ? 
+                                `/search?page=${page-1}&roomName=${roomName}` :
+                                `/search?page=${page-1}`}
+                            style={{
+                                "backgroundColor" : "#261a31", 
+                                "color": "white"}}>
+                        {page}
+                        </PageNum> : 
+                        <PageNum 
+                            key={idx} 
+                            to={roomName ? 
+                                `/search?page=${page-1}&roomName=${roomName}` :
+                                `/search?page=${page-1}`}>
+                        {page}
+                        </PageNum>
+                        )}
                 </Page>
-                {currentPage <= Math.floor(totalPages/10)*10 ? <Angle to={`/search?page=${Math.ceil(currentPage/10)*10}`}><FaAngleRight /></Angle> : null}
+                {currentPage <= Math.floor((totalPages-1)/10)*10 ? 
+                    <Angle 
+                        to={roomName ? 
+                            `/search?page=${Math.ceil(currentPage/10)*10}&roomName=${roomName}` : 
+                            `/search?page=${Math.ceil(currentPage/10)*10}`}>
+                    <FaAngleRight />
+                    </Angle> : 
+                    null}
             </Pagination>
         </Container>
     );

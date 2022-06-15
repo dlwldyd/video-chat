@@ -14,7 +14,7 @@ const MyTheme = {
     clickColor: "#689d6a",
     navColor: "#1d2021",
     navTextColor: "white",
-    btnColor: "#d5c4a1",
+    btnColor: "#645943",
     tableBorderColor: "#dadfec",
     tableBgColor: "#ecf0fa",
   },

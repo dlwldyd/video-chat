@@ -34,12 +34,31 @@ public class ChatRoomService {
 
 //    @PostConstruct
 //    public void init() {
-//        for (int i = 0; i < 1000; i++) {
-//            ChatRoom chatRoom = new ChatRoom("tmp", "tmp", 1);
+//        for (int i = 0; i < 200; i++) {
+//            ChatRoom chatRoom = new ChatRoom("tmp", "tmp1", 1);
+//            chatRoomRepository.save(chatRoom);
+//        }
+//        for (int i = 0; i < 200; i++) {
+//            ChatRoom chatRoom = new ChatRoom("abc", "tmp2", 1);
+//            chatRoomRepository.save(chatRoom);
+//        }
+//        for (int i = 0; i < 200; i++) {
+//            ChatRoom chatRoom = new ChatRoom("def", "tmp3", 1);
+//            chatRoomRepository.save(chatRoom);
+//        }
+//        for (int i = 0; i < 200; i++) {
+//            ChatRoom chatRoom = new ChatRoom("ghi", "tmp4", 1);
+//            chatRoomRepository.save(chatRoom);
+//        }
+//        for (int i = 0; i < 200; i++) {
+//            ChatRoom chatRoom = new ChatRoom("jkl", "tmp5", 1);
+//            chatRoomRepository.save(chatRoom);
+//        }
+//        for (int i = 0; i < 200; i++) {
+//            ChatRoom chatRoom = new ChatRoom("mno", "tmp6", 1);
 //            chatRoomRepository.save(chatRoom);
 //        }
 //    }
-
     public ChatRoomKeyDto createRoom(ChatRoomDto chatRoomDto) {
         ChatRoom chatRoom = ChatRoom.create(chatRoomDto, passwordEncoder);
         chatRoomRepository.save(chatRoom);
@@ -77,8 +96,8 @@ public class ChatRoomService {
         return null;
     }
 
-    public Page<RoomInfoDto> searchRoom(Pageable pageable) {
-        Page<ChatRoom> chatRooms = chatRoomRepository.findAll(pageable);
+    public Page<RoomInfoDto> searchRoom(Pageable pageable, String roomName) {
+        Page<ChatRoom> chatRooms = chatRoomRepository.findRooms(pageable, roomName);
         return chatRooms.map(RoomInfoDto::new);
     }
 

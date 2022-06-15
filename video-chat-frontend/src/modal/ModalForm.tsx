@@ -27,10 +27,10 @@ function ModalForm({isOpen, setIsOpen, content}: ModalInfo) {
                 },
                 content: {
                 position: 'absolute',
-                top: '300px',
+                top: '350px',
                 left: '700px',
                 right: '700px',
-                bottom: '300px',
+                bottom: '350px',
                 border: '1px solid #ccc',
                 background: '#fff',
                 overflow: 'auto',
