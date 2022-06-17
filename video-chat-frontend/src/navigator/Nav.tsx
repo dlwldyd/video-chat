@@ -4,12 +4,20 @@ import styled from "styled-components";
 import { useState } from 'react';
 import ModalForm from "../modal/ModalForm";
 import { useNavigate } from "react-router";
+import { FaUserEdit } from "react-icons/fa";
 
-const ButtonSet = styled.div`
+const LeftButtonSet = styled.div`
     display: flex;
     width: 320px;
     justify-content: space-between;
     align-items: center;
+`
+
+const RightButtonSet = styled.div`
+    display: flex;
+    width: 100px;
+    justify-content: space-between;
+    align-items: flex-end;
 `
 
 const NavContainer = styled.nav`
@@ -114,7 +122,7 @@ const Input = styled.input`
     }
 `
 
-const SubmitBtn = styled.button`
+const Btn = styled.button`
     all: unset;
     border-radius: 10px;
     background-color: ${props => props.theme.color.btnColor};
@@ -127,15 +135,25 @@ const SubmitBtn = styled.button`
     }
 `
 
+const NickNameEdit = styled.div`
+    &:hover {
+        cursor: pointer;
+    }
+`
+
 function Nav() {
 
     const [loginState, setLoginState] = useState(sessionStorage.getItem("authenticated") === "true");
 
-    const [modalOpen, setModalOpen] = useState(false);
+    const [createRoomOpen, setCreateRoomOpen] = useState(false);
+
+    const [editNicknameOpen, setEditNicknameOpen] = useState(false);
 
     const [roomName, setRoomName] = useState("");
 
     const [password, setPassword] = useState("");
+
+    const [nickname, setNickname] = useState("");
 
     const navigate = useNavigate();
 
@@ -160,7 +178,11 @@ function Nav() {
     }
 
     const onClick = () => {
-        setModalOpen(modalOpen => true);
+        setCreateRoomOpen(modalOpen => true);
+    }
+
+    const onOpen = () => {
+        setEditNicknameOpen(editNicknameOpen => true);
     }
 
     const onSubmit = (event: React.FormEvent) => {
@@ -168,70 +190,110 @@ function Nav() {
         if(roomName === "") {
             alert("방 이름을 입력해주세요");
         } else {
-            const getRoomKey = async () => {
-                const json = await (await axios.post("http://localhost:8080/api/createRoom", {
-                    roomName,
-                    password,
-                }, {
-                    withCredentials: true,
-                })).data;
-                navigate(`/video-chat`, {state: json.roomKey});
-            }
             getRoomKey();
         }
     }
 
-    const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const onRoomNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRoomName(roomName => event.target.value);
+    }
+
+    const onNickNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setNickname(nickname => event.target.value);
     }
 
     const onPassChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(password => event.target.value);
     }
+
+    const getRoomKey = async () => {
+        const { roomKey } = await (await axios.post("http://localhost:8080/api/createRoom", {
+            roomName,
+            password,
+        }, {
+            withCredentials: true,
+        })).data;
+        navigate(`/video-chat`, {state: roomKey});
+    }
     
-    const onEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const onEnterFCR = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if(event.key === "Enter") {
-            event.preventDefault();
             if(roomName === "") {
                 alert("방 이름을 입력해주세요");
             } else {
-                const getRoomKey = async () => {
-                    const json = await (await axios.post("http://localhost:8080/api/createRoom", {
-                        roomName,
-                        password,
-                    }, {
-                        withCredentials: true,
-                    })).data;
-                    navigate(`/video-chat`, {state: json.roomKey});
-                }
                 getRoomKey();
             }
         }
     }
 
-    const modalContent = (
+    const changeNickname = async () => {
+        const response = (await axios.get(`http://localhost:8080/api/changeNickname?nickname=${nickname}`, {
+            withCredentials: true,
+        })).status;
+        console.log(response);
+        if(response === 200) {
+            sessionStorage.setItem("nickname", nickname);
+            alert("닉네임을 변경하였습니다.")
+            setEditNicknameOpen(editNicknameOpen => false);
+        } else if(response === 401 || response === 403) {
+            alert("권한이 없습니다.");
+        } else {
+            alert("오류");
+        }
+    }
+
+
+    const onEnterFEN = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if(event.key === "Enter") {            
+            if(nickname === "") {
+                alert("닉네임을 입력해주세요");
+            } else {                
+                changeNickname();
+            }
+        }
+    }
+
+    const onEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
+        changeNickname();
+    }
+
+    const createModal = (
         <ModalContainer action="http://localhost:8080/api/createRoom" method="POST" onSubmit={onSubmit}>
             <InputSet>
                 <Label htmlFor="roomName">방 이름</Label>
-                <Input id="roomName" value={roomName} onChange={onNameChange} onKeyDown={onEnter} />
+                <Input id="roomName" value={roomName} onChange={onRoomNameChange} onKeyDown={onEnterFCR} />
                 <Label htmlFor="password">비밀번호(선택)</Label>
-                <Input id="password" type="password" value={password} onChange={onPassChange} onKeyDown={onEnter} />
+                <Input id="password" type="password" value={password} onChange={onPassChange} onKeyDown={onEnterFCR} />
             </InputSet>
-            <SubmitBtn type="submit">만들기</SubmitBtn>
+            <Btn type="submit">만들기</Btn>
         </ModalContainer>
     );
+
+    const editModal = (
+        <ModalContainer>
+            <InputSet>
+                <Label htmlFor="nickname">현재 닉네임 : ${sessionStorage.getItem("nickname")}</Label>
+                <Input placeholder="변경할 닉네임을 입력해주세요" value={nickname} id="nickname" onChange={onNickNameChange} onKeyDown={onEnterFEN} />
+            </InputSet>
+            <Btn onClick={onEdit}>변경</Btn>
+        </ModalContainer>
+    )
 
     return (
         <div>
             <NavContainer>
-                <ButtonSet>
+                <LeftButtonSet>
                     <HomeButton to="/">VChat</HomeButton>
                     <CreateChatRoom onClick={onClick}>채팅방 생성</CreateChatRoom>
                     <SearchChat to="/search">채팅참여</SearchChat>
-                </ButtonSet>
-                {loginState ? <LogoutButton onClick={onLogout} to="/">Logout</LogoutButton> : <LoginButton to="/login">Login</LoginButton>}
+                </LeftButtonSet>
+                <RightButtonSet>
+                    {loginState ? <NickNameEdit onClick={onOpen}><FaUserEdit color="white" size="17px"/></NickNameEdit> : null}                    
+                    {loginState ? <LogoutButton onClick={onLogout} to="/">Logout</LogoutButton> : <LoginButton to="/login">Login</LoginButton>}
+                </RightButtonSet>
             </NavContainer>
-            <ModalForm isOpen={modalOpen} setIsOpen={setModalOpen} content={modalContent}></ModalForm>
+            <ModalForm isOpen={createRoomOpen} setIsOpen={setCreateRoomOpen} content={createModal}></ModalForm>
+            <ModalForm isOpen={editNicknameOpen} setIsOpen={setEditNicknameOpen} content={editModal}></ModalForm>
         </div>
     );
 }

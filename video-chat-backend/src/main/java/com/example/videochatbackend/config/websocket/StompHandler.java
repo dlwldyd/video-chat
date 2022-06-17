@@ -35,7 +35,7 @@ public class StompHandler implements ChannelInterceptor {
             ChatDto chatDto = (ChatDto) messageConverter.fromMessage(message, ChatDto.class);
             String type = chatDto != null ? chatDto.getType() : null;
             if (type != null && type.equals("join")) {
-                chatRoomService.join(chatDto, (String) message.getHeaders().get("simpSessionId"));
+                chatRoomService.joinVideoConn(chatDto, (String) message.getHeaders().get("simpSessionId"));
             }
         } else if (accessor.getCommand() == StompCommand.DISCONNECT) {
             ChatDto chatDto = chatRoomService.leave((String) message.getHeaders().get("simpSessionId"));

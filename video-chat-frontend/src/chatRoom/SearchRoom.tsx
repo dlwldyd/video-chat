@@ -195,57 +195,95 @@ function SearchRoom() {
 
     const {page, roomName} = queryString.parse(window.location.search);
 
-    const [modalOpen, setModalOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+
+    const [pwOpen, setPwOpen] = useState(false);
 
     const [searchRoomName, setSearchRoomName] = useState("");
 
+    const [roomPassword, setRoomPassword] = useState("");
+
+    const [clickedRoomId, setClickedRoomId] = useState<string | null>("");
+
+    const [clickedRoomName, setClickedRoomName] = useState<string | null>("");
+
+    const getRoomKey = async () => {
+        const {roomKey} = await (await axios.post("http://localhost:8080/api/getRoomKey", {
+            roomId: clickedRoomId,
+            roomName: clickedRoomName,
+            password: roomPassword
+        }, {
+            withCredentials: true
+        })).data;
+        navigate(`/video-chat`, {state: roomKey});
+    }
+
     const onClick = (event: ClickEvent) => {
         
-        const roomId = event.target.getAttribute("data-roomid");
-        const roomName = event.target.getAttribute("data-roomname");
-        const password = event.target.getAttribute("password");
+        setClickedRoomId(clickedRoomId => event.target.getAttribute("data-roomid"));
+        setClickedRoomName(clickedRoomName => event.target.getAttribute("data-roomname"));
 
-        const getRoomKey = async () => {
-            const {roomKey} = await (await axios.post("http://localhost:8080/api/joinRoom", {
-                roomId,
-                roomName,
-                password
-            }, {
-                withCredentials: true
-            })).data;
-            navigate(`/video-chat`, {state: roomKey});
-        }
         getRoomKey();
     }
 
-    const onOpen = () => {
-        setModalOpen(modalOpen => true);
+    const onClickLocked = (event: ClickEvent) => {
+        setClickedRoomId(clickedRoomId => event.target.getAttribute("data-roomid"));
+        setClickedRoomName(clickedRoomName => event.target.getAttribute("data-roomname"));
+        setPwOpen(pwOpen => true);
+    }
+
+    const onSearchOpen = () => {
+        setSearchOpen(searchOpen => true);
     }
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchRoomName(searchRoom => event.target.value);
     }
 
-    const onSearch = () => {
-        navigate(`/search?roomName=${searchRoomName}`);
-        setModalOpen(modalOpen => false);
+    const onChangePw = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRoomPassword(roomPassword => event.target.value);
     }
 
-    const onEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const onSearch = () => {
+        navigate(`/search?roomName=${searchRoomName}`);
+        setSearchOpen(searchOpen => false);
+    }
+
+    const onEnterFS = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if(event.key === "Enter") {
-            event.preventDefault();
             navigate(`/search?roomName=${searchRoomName}`);
-            setModalOpen(modalOpen => false);
+            setSearchOpen(searchOpen => false);
         }
     }
 
-    const modalContent = (
+    const onEnterFP = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if(event.key === "Enter") {
+            getRoomKey();
+        }
+    }
+    
+
+    const onPwInput = () => {
+        getRoomKey();
+    }
+
+    const searchModal = (
         <ModalContainer>
             <InputText>
                 <Label htmlFor="search">방 이름</Label>
-                <Input value={searchRoomName} id="search" onChange={onChange} onKeyDown={onEnter} />
+                <Input value={searchRoomName} id="search" onChange={onChange} onKeyDown={onEnterFS} />
             </InputText>
             <SearchBtn onClick={onSearch}>검색</SearchBtn>
+        </ModalContainer>
+    );
+
+    const passwordModal = (
+        <ModalContainer>
+            <InputText>
+                <Label htmlFor="room-pw">패스워드</Label>
+                <Input type="password" value={roomPassword} id="room-pw" onChange={onChangePw} onKeyDown={onEnterFP} />
+            </InputText>
+            <SearchBtn onClick={onPwInput}>입력</SearchBtn>
         </ModalContainer>
     );
 
@@ -261,9 +299,6 @@ function SearchRoom() {
                         withCredentials: true
                     })
             ).data;
-            // const json = await (await axios.get(`http://localhost:8080/api/roomInfo?page=${page}`, {
-            //     withCredentials: true
-            // })).data;
             setRooms(rooms => [...json.content]);
             setCurrentPage(currentPage => json.pageable.pageNumber+1);
             setTotalPages(totalPages => json.totalPages);
@@ -284,9 +319,10 @@ function SearchRoom() {
     return (
         <Container>
             <Nav />
-            <ModalForm isOpen={modalOpen} setIsOpen={setModalOpen} content={modalContent}></ModalForm>
+            <ModalForm isOpen={searchOpen} setIsOpen={setSearchOpen} content={searchModal}></ModalForm>
+            <ModalForm isOpen={pwOpen} setIsOpen={setPwOpen} content={passwordModal}></ModalForm>
             <div>
-                <SearchModalBtn onClick={onOpen}><FaSearch /></SearchModalBtn>
+                <SearchModalBtn onClick={onSearchOpen}><FaSearch /></SearchModalBtn>
                 <Table>
                     <Thead>
                         <Tr>
@@ -297,9 +333,7 @@ function SearchRoom() {
                     <tbody>
                         {rooms.map((room, idx) => 
                         <Tr key={idx}>
-                            {room.locked ? 
-                                <TdRoomName><Room data-roomid={room.roomId} data-roomname={room.roomName} onClick={onClick}>{room.roomName} <FaLock /></Room></TdRoomName> : 
-                                <TdRoomName><Room data-roomid={room.roomId} data-roomname={room.roomName} onClick={onClick}>{room.roomName} </Room></TdRoomName>}
+                                <TdRoomName><Room data-roomid={room.roomId} data-roomname={room.roomName} onClick={room.locked ? onClickLocked : onClick}>{room.roomName} {room.locked ? <FaLock /> : null}</Room></TdRoomName>
                             <TdNumber>{room.count}/9</TdNumber>
                         </Tr>)}
                     </tbody>

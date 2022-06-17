@@ -4,6 +4,7 @@ import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { FaRegPaperPlane } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router";
+import axios from "axios";
 
 const InputPanel = styled.div`
     position: sticky;
@@ -160,57 +161,90 @@ function VideoChat() {
             ]
         };
 
-        const handleStompConnection = () => {
-            const ws = new SockJS("http://localhost:8080/stomp");
-            stomp.current = Stomp.over(ws);
-            stomp.current.connect({}, () => {
-                stomp.current?.subscribe(`/exchange/chat.exchange/room.${roomKey}`, (message) => {
-                    const json = JSON.parse(message.body);
-                    if(json.type === "message") {
-                        setReceivedMsg(receivedMsg => [...receivedMsg, `${json.nickname} : ${json.msg}`]);
-                    } else if(json.type === "join") {
-                        if(json.from !== from) {
-                            setRemoteStreams(remoteStreams => {
-                                const updated = new Map<string, MediaStream | null>(remoteStreams);
-                                updated.set(json.streamId, null);
-                                return updated;
-                            });
-                            makeOffer(json.from);
-                        }
-                    } else if(json.type === "offer") {
-                        if(from === json.target) {
-                            setRemoteStreams(remoteStreams => {
-                                const updated = new Map<string, MediaStream | null>(remoteStreams);
-                                updated.set(json.streamId, null);
-                                return updated;
-                            });
-                            makeAnswer(json.from, json.sdp);
-                        }
-                    } else if(json.type === "answer") {
-                        if(from === json.target) {
-                            myPeerConnections.get(json.from)?.setRemoteDescription(json.sdp);
-                        }
-                    } else if(json.type === "ice") {
-                        if(from === json.target) {
-                            myPeerConnections.get(json.from)?.addIceCandidate(json.iceCandidate);
-                        }
-                    } else if(json.type === "leave") {
-                        const myPeerConnection = myPeerConnections.get(json.from);
-                        if(myPeerConnection) {
-                            disconnect(myPeerConnection);
-                        }
-                        setRemoteStreams(remoteStreams => {
-                            const updated = new Map<string, MediaStream | null>(remoteStreams);
-                            updated.delete(json.streamId);
-                            return updated;
-                        })
-                    }
-                });
-                joinRoom();
+        const uuid = () => {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : ((r & 0x3) | 0x8);
+                return v.toString(16);
             });
         }
 
-        const joinRoom = async () => {
+        const stompConn = () => {
+            
+            return new Promise<void>((resolve, reject) => {
+                const sessionId = uuid();
+                const ws = new SockJS("http://localhost:8080/stomp", [], {
+                    sessionId: () => {
+                        return sessionId;
+                    },
+                });
+                stomp.current = Stomp.over(ws);
+                stomp.current.connect({}, () => {
+                    enterRoom(sessionId);
+                    stomp.current?.subscribe(`/exchange/chat.exchange/room.${roomKey}`, (message) => {
+                        const json = JSON.parse(message.body);
+                        if(json.type === "message") {
+                            setReceivedMsg(receivedMsg => [...receivedMsg, `${json.nickname} : ${json.msg}`]);
+                        } else if(json.type === "join") {
+                            if(json.from !== from) {
+                                setRemoteStreams(remoteStreams => {
+                                    const updated = new Map<string, MediaStream | null>(remoteStreams);
+                                    updated.set(json.streamId, null);
+                                    return updated;
+                                });
+                                makeOffer(json.from);
+                            }
+                        } else if(json.type === "offer") {
+                            if(from === json.target) {
+                                setRemoteStreams(remoteStreams => {
+                                    const updated = new Map<string, MediaStream | null>(remoteStreams);
+                                    updated.set(json.streamId, null);
+                                    return updated;
+                                });
+                                makeAnswer(json.from, json.sdp);
+                            }
+                        } else if(json.type === "answer") {
+                            if(from === json.target) {
+                                myPeerConnections.get(json.from)?.setRemoteDescription(json.sdp);
+                            }
+                        } else if(json.type === "ice") {
+                            if(from === json.target) {
+                                myPeerConnections.get(json.from)?.addIceCandidate(json.iceCandidate);
+                            }
+                        } else if(json.type === "leave") {
+                            const myPeerConnection = myPeerConnections.get(json.from);
+                            if(myPeerConnection) {
+                                disconnect(myPeerConnection);
+                            }
+                            setRemoteStreams(remoteStreams => {
+                                const updated = new Map<string, MediaStream | null>(remoteStreams);
+                                updated.delete(json.streamId);
+                                return updated;
+                            })
+                        }
+                    });                
+                })
+                resolve();
+            });
+        }
+
+        const handleStompConnection = async () => {
+            await stompConn();
+            videoConn();
+        }
+
+        const enterRoom = async (sessionId: string) => {
+            const response = (await axios.post(`http://localhost:8080/api/joinRoom`, {
+                roomKey,
+                sessionId,
+            }, {
+                withCredentials: true,
+            })).status
+            if(response !== 200) {
+                navigate("/");
+            }
+        }
+
+        const videoConn = async () => {
             if(!videoEl.current) {
                 navigate("/", {replace: true});
             }

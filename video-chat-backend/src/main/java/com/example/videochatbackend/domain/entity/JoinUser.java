@@ -1,11 +1,10 @@
 package com.example.videochatbackend.domain.entity;
 
-import com.example.videochatbackend.domain.dto.ChatDto;
+import com.example.videochatbackend.security.member.MemberDetails;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,7 +17,7 @@ public class JoinUser {
     private Long id;
 
     @Column(nullable = false)
-    private String simpSessionId;
+    private String sessionId;
 
     private String streamId;
 
@@ -28,10 +27,13 @@ public class JoinUser {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
-    public JoinUser(String simpSessionId, ChatDto chatDto, ChatRoom chatRoom) {
-        this.simpSessionId = simpSessionId;
-        this.username = chatDto.getFrom();
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
+    }
+
+    public JoinUser(String sessionId, MemberDetails memberDetails, ChatRoom chatRoom) {
+        this.sessionId = sessionId;
+        this.username = memberDetails.getUsername();
         this.chatRoom = chatRoom;
-        this.streamId = chatDto.getStreamId();
     }
 }

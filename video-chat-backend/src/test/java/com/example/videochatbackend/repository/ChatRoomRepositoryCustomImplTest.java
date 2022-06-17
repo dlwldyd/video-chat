@@ -1,6 +1,7 @@
 package com.example.videochatbackend.repository;
 
 import com.example.videochatbackend.domain.entity.ChatRoom;
+import com.example.videochatbackend.repository.chatRoom.ChatRoomRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

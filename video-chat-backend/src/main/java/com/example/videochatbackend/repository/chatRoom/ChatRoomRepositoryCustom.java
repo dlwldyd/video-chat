@@ -1,4 +1,4 @@
-package com.example.videochatbackend.repository;
+package com.example.videochatbackend.repository.chatRoom;
 
 import com.example.videochatbackend.domain.entity.ChatRoom;
 import org.springframework.data.domain.Page;

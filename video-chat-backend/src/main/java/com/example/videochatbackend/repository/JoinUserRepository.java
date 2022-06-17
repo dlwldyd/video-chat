@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface JoinUserRepository extends JpaRepository<JoinUser, Long> {
 
-    @Query("select ju from JoinUser ju join fetch ju.chatRoom where ju.simpSessionId = :simpSessionId")
-    Optional<JoinUser> findBySimpSessionId(@Param("simpSessionId") String simpSessionId);
+    @Query("select ju from JoinUser ju join fetch ju.chatRoom where ju.sessionId = :sessionId")
+    Optional<JoinUser> findBySessionId(@Param("sessionId") String sessionId);
 }

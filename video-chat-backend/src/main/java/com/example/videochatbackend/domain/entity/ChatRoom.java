@@ -57,6 +57,6 @@ public class ChatRoom {
     }
 
     public boolean validate(String password, PasswordEncoder passwordEncoder) {
-        return passwordEncoder.encode(password).equals(this.password);
+        return passwordEncoder.matches(password, this.password);
     }
 }

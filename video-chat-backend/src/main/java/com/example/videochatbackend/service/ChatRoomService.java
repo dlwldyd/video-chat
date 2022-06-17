@@ -1,13 +1,11 @@
 package com.example.videochatbackend.service;
 
-import com.example.videochatbackend.domain.dto.ChatDto;
-import com.example.videochatbackend.domain.dto.ChatRoomDto;
-import com.example.videochatbackend.domain.dto.ChatRoomKeyDto;
-import com.example.videochatbackend.domain.dto.RoomInfoDto;
+import com.example.videochatbackend.domain.dto.*;
 import com.example.videochatbackend.domain.entity.ChatRoom;
 import com.example.videochatbackend.domain.entity.JoinUser;
-import com.example.videochatbackend.repository.ChatRoomRepository;
+import com.example.videochatbackend.repository.chatRoom.ChatRoomRepository;
 import com.example.videochatbackend.repository.JoinUserRepository;
+import com.example.videochatbackend.security.member.MemberDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -15,10 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -65,24 +61,14 @@ public class ChatRoomService {
         return new ChatRoomKeyDto(chatRoom.getRoomKey());
     }
 
-    public void join(ChatDto chatDto, String simpSessionId) {
-        try {
-            Optional<JoinUser> bySimpSessionId = joinUserRepository.findBySimpSessionId(simpSessionId);
-            if (bySimpSessionId.isPresent()) {
-                throw new RuntimeException("already joined");
-            }
-            ChatRoom chatRoom = chatRoomRepository.findByRoomKey(chatDto.getRoomKey()).orElseThrow(() -> new RuntimeException("no chat room"));
-            chatRoom.setCount(chatRoom.getCount() + 1);
-            JoinUser joinUser = new JoinUser(simpSessionId, chatDto, chatRoom);
-            joinUserRepository.save(joinUser);
-        } catch (RuntimeException e) {
-            log.info(e.getMessage());
-        }
+    public void joinVideoConn(ChatDto chatDto, String sessionId) {
+        JoinUser joinUser = joinUserRepository.findBySessionId(sessionId).orElseThrow(() -> new RuntimeException("no user"));
+        joinUser.setStreamId(chatDto.getStreamId());
     }
 
     public ChatDto leave(String simpSessionId) {
         try {
-            JoinUser joinUser = joinUserRepository.findBySimpSessionId(simpSessionId).orElseThrow(() -> new RuntimeException("already disconnected"));
+            JoinUser joinUser = joinUserRepository.findBySessionId(simpSessionId).orElseThrow(() -> new RuntimeException("already disconnected"));
             ChatRoom chatRoom = joinUser.getChatRoom();
             chatRoom.setCount(chatRoom.getCount() - 1);
             joinUserRepository.delete(joinUser);
@@ -101,7 +87,7 @@ public class ChatRoomService {
         return chatRooms.map(RoomInfoDto::new);
     }
 
-    public ChatRoomKeyDto joinRoom(ChatRoomDto chatRoomDto) {
+    public ChatRoomKeyDto getRoomKey(ChatRoomDto chatRoomDto) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomDto.getRoomId()).orElseThrow(() -> new RuntimeException("no chat room"));
         if (chatRoom.getPassword() == null || chatRoom.validate(chatRoomDto.getPassword(), passwordEncoder)) {
             return new ChatRoomKeyDto(chatRoom.getRoomKey());
@@ -110,5 +96,15 @@ public class ChatRoomService {
             throw new RuntimeException("인원이 가득찼습니다.");
         }
         throw new RuntimeException("패스워드가 일치하지 않습니다.");
+    }
+
+    public void joinRoom(SessionIdDto sessionIdDto, MemberDetails memberDetails) {
+        if (joinUserRepository.findBySessionId(sessionIdDto.getSessionId()).isPresent()) {
+            throw new RuntimeException("already joined");
+        }
+        ChatRoom chatRoom = chatRoomRepository.findByRoomKey(sessionIdDto.getRoomKey()).orElseThrow(() -> new RuntimeException("no room"));
+        JoinUser joinUser = new JoinUser(sessionIdDto.getSessionId(), memberDetails, chatRoom);
+        joinUserRepository.save(joinUser);
+        chatRoom.setCount(chatRoom.getCount() + 1);
     }
 }
