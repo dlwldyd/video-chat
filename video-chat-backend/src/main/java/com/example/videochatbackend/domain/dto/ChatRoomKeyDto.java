@@ -4,24 +4,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter
 @NoArgsConstructor
 public class ChatRoomKeyDto {
 
-    private String roomId;
-
-    private String roomName;
+    @NotNull
+    private Long roomId;
 
     private String roomKey;
 
-    public ChatRoomKeyDto(String roomKey) {
-        this.roomKey = roomKey;
-    }
+    private String password;
 
-    public ChatRoomKeyDto(String roomId, String roomName, String roomKey) {
+    public ChatRoomKeyDto(String roomKey, Long roomId) {
         this.roomId = roomId;
-        this.roomName = roomName;
         this.roomKey = roomKey;
     }
 }

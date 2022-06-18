@@ -1,6 +1,7 @@
-package com.example.videochatbackend.config.websocket;
+package com.example.videochatbackend.message.websocket;
 
 import com.example.videochatbackend.domain.dto.ChatDto;
+import com.example.videochatbackend.domain.exception.NoSuchUserException;
 import com.example.videochatbackend.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,11 @@ public class StompHandler implements ChannelInterceptor {
             ChatDto chatDto = (ChatDto) messageConverter.fromMessage(message, ChatDto.class);
             String type = chatDto != null ? chatDto.getType() : null;
             if (type != null && type.equals("join")) {
-                chatRoomService.joinVideoConn(chatDto, (String) message.getHeaders().get("simpSessionId"));
+                try {
+                    chatRoomService.joinVideoConn(chatDto, (String) message.getHeaders().get("simpSessionId"));
+                } catch (NoSuchUserException e) {
+                    log.info("NoSuchUserException : {}", e.getMessage());
+                }
             }
         } else if (accessor.getCommand() == StompCommand.DISCONNECT) {
             ChatDto chatDto = chatRoomService.leave((String) message.getHeaders().get("simpSessionId"));

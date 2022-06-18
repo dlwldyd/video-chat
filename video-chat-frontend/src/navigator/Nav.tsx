@@ -1,10 +1,11 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useState } from 'react';
 import ModalForm from "../modal/ModalForm";
 import { useNavigate } from "react-router";
 import { FaUserEdit } from "react-icons/fa";
+import handleAxiosException from "../handleException/handleAxiosException";
 
 const LeftButtonSet = styled.div`
     display: flex;
@@ -207,43 +208,34 @@ function Nav() {
     }
 
     const getRoomKey = async () => {
-        const { roomKey } = await (await axios.post("http://localhost:8080/api/createRoom", {
-            roomName,
-            password,
-        }, {
-            withCredentials: true,
-        })).data;
-        navigate(`/video-chat`, {state: roomKey});
-    }
-    
-    const onEnterFCR = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if(event.key === "Enter") {
-            if(roomName === "") {
-                alert("방 이름을 입력해주세요");
-            } else {
-                getRoomKey();
-            }
+        try {
+            const { roomKey } = await (await axios.post("http://localhost:8080/api/createRoom", {
+                roomName,
+                password,
+            }, {
+                withCredentials: true,
+            })).data;                   
+            navigate(`/video-chat`, {state: roomKey});
+        } catch(err: unknown | AxiosError) {
+            handleAxiosException(err);
         }
     }
-
+    
     const changeNickname = async () => {
-        const response = (await axios.get(`http://localhost:8080/api/changeNickname?nickname=${nickname}`, {
-            withCredentials: true,
-        })).status;
-        console.log(response);
-        if(response === 200) {
+        try {
+            await axios.get(`http://localhost:8080/api/changeNickname?nickname=${nickname}`, {
+                withCredentials: true,
+            });
             sessionStorage.setItem("nickname", nickname);
             alert("닉네임을 변경하였습니다.")
             setEditNicknameOpen(editNicknameOpen => false);
-        } else if(response === 401 || response === 403) {
-            alert("권한이 없습니다.");
-        } else {
-            alert("오류");
+        } catch(err: unknown | AxiosError) {
+            handleAxiosException(err);
         }
     }
 
 
-    const onEnterFEN = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const onEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if(event.key === "Enter") {            
             if(nickname === "") {
                 alert("닉네임을 입력해주세요");
@@ -261,9 +253,9 @@ function Nav() {
         <ModalContainer action="http://localhost:8080/api/createRoom" method="POST" onSubmit={onSubmit}>
             <InputSet>
                 <Label htmlFor="roomName">방 이름</Label>
-                <Input id="roomName" value={roomName} onChange={onRoomNameChange} onKeyDown={onEnterFCR} />
+                <Input id="roomName" value={roomName} onChange={onRoomNameChange} />
                 <Label htmlFor="password">비밀번호(선택)</Label>
-                <Input id="password" type="password" value={password} onChange={onPassChange} onKeyDown={onEnterFCR} />
+                <Input id="password" type="password" value={password} onChange={onPassChange} />
             </InputSet>
             <Btn type="submit">만들기</Btn>
         </ModalContainer>
@@ -273,7 +265,7 @@ function Nav() {
         <ModalContainer>
             <InputSet>
                 <Label htmlFor="nickname">현재 닉네임 : ${sessionStorage.getItem("nickname")}</Label>
-                <Input placeholder="변경할 닉네임을 입력해주세요" value={nickname} id="nickname" onChange={onNickNameChange} onKeyDown={onEnterFEN} />
+                <Input placeholder="변경할 닉네임을 입력해주세요" value={nickname} id="nickname" onChange={onNickNameChange} onKeyDown={onEnter} />
             </InputSet>
             <Btn onClick={onEdit}>변경</Btn>
         </ModalContainer>

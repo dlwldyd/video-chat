@@ -4,6 +4,7 @@ import com.example.videochatbackend.domain.dto.ChatRoomDto;
 import com.example.videochatbackend.domain.dto.ChatRoomKeyDto;
 import com.example.videochatbackend.domain.dto.RoomInfoDto;
 import com.example.videochatbackend.domain.dto.SessionIdDto;
+import com.example.videochatbackend.domain.exception.BeanValidationException;
 import com.example.videochatbackend.security.member.MemberDetails;
 import com.example.videochatbackend.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,7 +28,10 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     @PostMapping("/createRoom")
-    public ChatRoomKeyDto createRoom(@RequestBody ChatRoomDto chatRoomDto) {
+    public ChatRoomKeyDto createRoom(@RequestBody @Validated ChatRoomDto chatRoomDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new BeanValidationException("방 이름을 입력해주세요");
+        }
         return chatRoomService.createRoom(chatRoomDto);
     }
 
@@ -35,8 +41,11 @@ public class ChatRoomController {
     }
 
     @PostMapping("/getRoomKey")
-    public ChatRoomKeyDto joinRoom(@RequestBody ChatRoomDto chatRoomDto) {
-        return chatRoomService.getRoomKey(chatRoomDto);
+    public ChatRoomKeyDto joinRoom(@RequestBody @Validated ChatRoomKeyDto chatRoomKeyDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new BeanValidationException("방을 찾을 수 없습니다.");
+        }
+        return chatRoomService.getRoomKey(chatRoomKeyDto);
     }
 
     @PostMapping("/joinRoom")

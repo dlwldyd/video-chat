@@ -1,5 +1,5 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import axios, { AxiosError } from "axios";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Nav from "../navigator/Nav";
 import { FaLock, FaAngleLeft, FaAngleRight, FaSearch } from "react-icons/fa";
@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router';
 import queryString from 'query-string';
 import { Link } from "react-router-dom";
 import ModalForm from "../modal/ModalForm";
+import handleAxiosException from "../handleException/handleAxiosException";
 
 const Container = styled.div`
     font-family: ${props => props.theme.font};
@@ -201,34 +202,32 @@ function SearchRoom() {
 
     const [searchRoomName, setSearchRoomName] = useState("");
 
-    const [roomPassword, setRoomPassword] = useState("");
+    const [roomPassword, setRoomPassword] = useState("");    
 
-    const [clickedRoomId, setClickedRoomId] = useState<string | null>("");
+    const roomId = useRef<string | null>("");
 
-    const [clickedRoomName, setClickedRoomName] = useState<string | null>("");
-
-    const getRoomKey = async () => {
-        const {roomKey} = await (await axios.post("http://localhost:8080/api/getRoomKey", {
-            roomId: clickedRoomId,
-            roomName: clickedRoomName,
-            password: roomPassword
-        }, {
-            withCredentials: true
-        })).data;
-        navigate(`/video-chat`, {state: roomKey});
+    const getRoomKey = async (roomId: string | null) => {
+        try {
+            const {roomKey} = await (await axios.post("http://localhost:8080/api/getRoomKey", {
+                roomId,
+                password: roomPassword
+            }, {
+                withCredentials: true
+            })).data;
+            navigate(`/video-chat`, {state: roomKey});
+        } catch(err: unknown | AxiosError) {
+            handleAxiosException(err);
+        }
+        
     }
 
     const onClick = (event: ClickEvent) => {
         
-        setClickedRoomId(clickedRoomId => event.target.getAttribute("data-roomid"));
-        setClickedRoomName(clickedRoomName => event.target.getAttribute("data-roomname"));
-
-        getRoomKey();
+        getRoomKey(event.target.getAttribute("data-roomid"));
     }
 
     const onClickLocked = (event: ClickEvent) => {
-        setClickedRoomId(clickedRoomId => event.target.getAttribute("data-roomid"));
-        setClickedRoomName(clickedRoomName => event.target.getAttribute("data-roomname"));
+        roomId.current = event.target.getAttribute("data-roomid");
         setPwOpen(pwOpen => true);
     }
 
@@ -258,13 +257,13 @@ function SearchRoom() {
 
     const onEnterFP = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if(event.key === "Enter") {
-            getRoomKey();
+            getRoomKey(roomId.current);
         }
     }
     
 
     const onPwInput = () => {
-        getRoomKey();
+        getRoomKey(roomId.current);
     }
 
     const searchModal = (
@@ -289,6 +288,8 @@ function SearchRoom() {
 
     useEffect(() => {
 
+        let beginPage = 1;
+
         const getRoomInfo = async () => {
             const json = await (
                 roomName ? 
@@ -303,7 +304,8 @@ function SearchRoom() {
             setCurrentPage(currentPage => json.pageable.pageNumber+1);
             setTotalPages(totalPages => json.totalPages);
             const begin = Math.floor(json.pageable.pageNumber/10)*10+1;
-            if(begin !== pageList[0]) {
+            if(begin !== beginPage) {
+                beginPage = begin;
                 const arr: number[] = [];
                 for (let i = 0; i < Math.min(10, json.totalPages-begin+1); i++) {
                     arr.push(begin+i);
@@ -314,7 +316,7 @@ function SearchRoom() {
 
         getRoomInfo();
 
-    }, [page, roomName, pageList]);
+    }, [page, roomName]);
 
     return (
         <Container>

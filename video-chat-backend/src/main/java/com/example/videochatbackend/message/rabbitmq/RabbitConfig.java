@@ -1,4 +1,4 @@
-package com.example.videochatbackend.config.rabbitmq;
+package com.example.videochatbackend.message.rabbitmq;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.*;

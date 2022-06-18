@@ -1,4 +1,4 @@
-package com.example.videochatbackend.config.websocket;
+package com.example.videochatbackend.message.websocket;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,8 +8,6 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.socket.config.annotation.*;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableWebSocketMessageBroker

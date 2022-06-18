@@ -3,6 +3,7 @@ package com.example.videochatbackend.service;
 import com.example.videochatbackend.domain.dto.*;
 import com.example.videochatbackend.domain.entity.ChatRoom;
 import com.example.videochatbackend.domain.entity.JoinUser;
+import com.example.videochatbackend.domain.exception.*;
 import com.example.videochatbackend.repository.chatRoom.ChatRoomRepository;
 import com.example.videochatbackend.repository.JoinUserRepository;
 import com.example.videochatbackend.security.member.MemberDetails;
@@ -14,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -58,11 +58,11 @@ public class ChatRoomService {
     public ChatRoomKeyDto createRoom(ChatRoomDto chatRoomDto) {
         ChatRoom chatRoom = ChatRoom.create(chatRoomDto, passwordEncoder);
         chatRoomRepository.save(chatRoom);
-        return new ChatRoomKeyDto(chatRoom.getRoomKey());
+        return new ChatRoomKeyDto(chatRoom.getRoomKey(), chatRoom.getId());
     }
 
     public void joinVideoConn(ChatDto chatDto, String sessionId) {
-        JoinUser joinUser = joinUserRepository.findBySessionId(sessionId).orElseThrow(() -> new RuntimeException("no user"));
+        JoinUser joinUser = joinUserRepository.findBySessionId(sessionId).orElseThrow(() -> new NoSuchUserException("no user"));
         joinUser.setStreamId(chatDto.getStreamId());
     }
 
@@ -87,22 +87,22 @@ public class ChatRoomService {
         return chatRooms.map(RoomInfoDto::new);
     }
 
-    public ChatRoomKeyDto getRoomKey(ChatRoomDto chatRoomDto) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomDto.getRoomId()).orElseThrow(() -> new RuntimeException("no chat room"));
-        if (chatRoom.getPassword() == null || chatRoom.validate(chatRoomDto.getPassword(), passwordEncoder)) {
-            return new ChatRoomKeyDto(chatRoom.getRoomKey());
+    public ChatRoomKeyDto getRoomKey(ChatRoomKeyDto chatRoomKeyDto) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomKeyDto.getRoomId()).orElseThrow(() -> new RoomNotFoundException("방을 찾을 수 없습니다."));
+        if (chatRoom.getPassword() == null || chatRoom.validate(chatRoomKeyDto.getPassword(), passwordEncoder)) {
+            return new ChatRoomKeyDto(chatRoom.getRoomKey(), chatRoom.getId());
         }
         if (chatRoom.getCount() >= 9) {
-            throw new RuntimeException("인원이 가득찼습니다.");
+            throw new FullRoomException("인원이 가득 찼습니다.");
         }
-        throw new RuntimeException("패스워드가 일치하지 않습니다.");
+        throw new PasswordMismatchException("패스워드가 일치하지 않습니다.");
     }
 
     public void joinRoom(SessionIdDto sessionIdDto, MemberDetails memberDetails) {
         if (joinUserRepository.findBySessionId(sessionIdDto.getSessionId()).isPresent()) {
-            throw new RuntimeException("already joined");
+            throw new AlreadyJoinException("이미 참여중인 방이 있습니다.");
         }
-        ChatRoom chatRoom = chatRoomRepository.findByRoomKey(sessionIdDto.getRoomKey()).orElseThrow(() -> new RuntimeException("no room"));
+        ChatRoom chatRoom = chatRoomRepository.findByRoomKey(sessionIdDto.getRoomKey()).orElseThrow(() -> new RoomNotFoundException("방을 찾을 수 없습니다."));
         JoinUser joinUser = new JoinUser(sessionIdDto.getSessionId(), memberDetails, chatRoom);
         joinUserRepository.save(joinUser);
         chatRoom.setCount(chatRoom.getCount() + 1);

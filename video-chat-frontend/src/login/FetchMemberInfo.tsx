@@ -1,7 +1,8 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
+import handleAxiosException from "../handleException/handleAxiosException";
 
 const Box = styled.div`
     width: 100%;
@@ -34,10 +35,8 @@ function FetchMemberInfo() {
         }
         try {
             getMemberInfo();
-        } catch(err: any) {
-            console.log(err);
-            alert("로그인 실패");
-            navigate("/", {replace: true});
+        } catch(err: unknown | AxiosError) {
+            handleAxiosException(err);
         }
     }, [navigate]);
 
