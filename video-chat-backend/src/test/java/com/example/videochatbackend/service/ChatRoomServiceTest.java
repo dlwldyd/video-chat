@@ -24,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,7 +75,7 @@ class ChatRoomServiceTest {
         assertThatThrownBy(() -> chatRoomService.joinRoom(new SessionIdDto("tmp", "tmp"), memberDetails)).isInstanceOf(AlreadyJoinException.class);
 
         when(joinUserRepository.findBySessionId(anyString())).thenReturn(Optional.empty());
-        when(chatRoomRepository.findByRoomKey(anyString())).thenReturn(Optional.empty());
+        when(chatRoomRepository.findByRoomKeyForCntUp(anyString())).thenReturn(Optional.empty());
         assertThatThrownBy(() -> chatRoomService.joinRoom(new SessionIdDto("tmp", "tmp"), memberDetails)).isInstanceOf(RoomNotFoundException.class);
     }
 }

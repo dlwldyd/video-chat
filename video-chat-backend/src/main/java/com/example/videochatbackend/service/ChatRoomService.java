@@ -68,7 +68,7 @@ public class ChatRoomService {
 
     public ChatDto leave(String sessionId) {
         try {
-            JoinUser joinUser = joinUserRepository.findBySessionId(sessionId).orElseThrow(() -> new RuntimeException("already disconnected"));
+            JoinUser joinUser = joinUserRepository.findBySessionIdForCntDown(sessionId).orElseThrow(() -> new RuntimeException("already disconnected"));
             ChatRoom chatRoom = joinUser.getChatRoom();
             chatRoom.setCount(chatRoom.getCount() - 1);
             joinUserRepository.delete(joinUser);
@@ -102,7 +102,7 @@ public class ChatRoomService {
         if (joinUserRepository.findBySessionId(sessionIdDto.getSessionId()).isPresent()) {
             throw new AlreadyJoinException("이미 참여중인 방이 있습니다.");
         }
-        ChatRoom chatRoom = chatRoomRepository.findByRoomKey(sessionIdDto.getRoomKey()).orElseThrow(() -> new RoomNotFoundException("방을 찾을 수 없습니다."));
+        ChatRoom chatRoom = chatRoomRepository.findByRoomKeyForCntUp(sessionIdDto.getRoomKey()).orElseThrow(() -> new RoomNotFoundException("방을 찾을 수 없습니다."));
         JoinUser joinUser = new JoinUser(sessionIdDto.getSessionId(), memberDetails, chatRoom);
         joinUserRepository.save(joinUser);
         chatRoom.setCount(chatRoom.getCount() + 1);
