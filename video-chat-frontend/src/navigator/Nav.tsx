@@ -5,7 +5,7 @@ import { useState } from 'react';
 import ModalForm from "../modal/ModalForm";
 import { useNavigate } from "react-router";
 import { FaUserEdit } from "react-icons/fa";
-import handleAxiosException from "../handleException/handleAxiosException";
+import handleAxiosException from "../exception/handleAxiosException";
 
 const LeftButtonSet = styled.div`
     display: flex;
@@ -156,33 +156,40 @@ function Nav() {
 
     const [nickname, setNickname] = useState("");
 
+    const [curNickname, setCurNickname] = useState(sessionStorage.getItem("nickname"));
+
     const navigate = useNavigate();
 
     const onLogout = () => {
         const logout = async () => {
-            const statusCode = (await axios.get("http://localhost:8080/logout", {
-                withCredentials: true
-            })).status
-            console.log(statusCode);
-            if(statusCode === 200) {
+            try {
+                axios.get("http://localhost:8080/logout", {
+                    withCredentials: true
+                });
                 sessionStorage.setItem("authenticated", "false");
                 sessionStorage.removeItem("nickname");
                 sessionStorage.removeItem("email");
+                sessionStorage.removeItem("username");
                 setLoginState(loginState => false);
+                navigate("/", {replace: true});
+            } catch(err: unknown | AxiosError) {
+                handleAxiosException(err);
             }
         }
-        try{
-            logout();
-        } catch(err: any) {
-            console.log(err);
-        }
+        logout();        
     }
 
     const onClick = () => {
+        if(!loginState) {
+            navigate("/login");
+        }
         setCreateRoomOpen(modalOpen => true);
     }
 
     const onOpen = () => {
+        if(!loginState) {
+            navigate("/login");
+        }
         setEditNicknameOpen(editNicknameOpen => true);
     }
 
@@ -223,12 +230,14 @@ function Nav() {
     
     const changeNickname = async () => {
         try {
-            await axios.get(`http://localhost:8080/api/changeNickname?nickname=${nickname}`, {
+            axios.get(`http://localhost:8080/api/changeNickname?nickname=${nickname}`, {
                 withCredentials: true,
             });
             sessionStorage.setItem("nickname", nickname);
-            alert("닉네임을 변경하였습니다.")
+            setCurNickname(nickname => sessionStorage.getItem("nickname"));
+            alert("닉네임을 변경하였습니다.");
             setEditNicknameOpen(editNicknameOpen => false);
+            setNickname(nickname => "");
         } catch(err: unknown | AxiosError) {
             handleAxiosException(err);
         }
@@ -264,7 +273,7 @@ function Nav() {
     const editModal = (
         <ModalContainer>
             <InputSet>
-                <Label htmlFor="nickname">현재 닉네임 : ${sessionStorage.getItem("nickname")}</Label>
+                <Label htmlFor="nickname">현재 닉네임 : {curNickname}</Label>
                 <Input placeholder="변경할 닉네임을 입력해주세요" value={nickname} id="nickname" onChange={onNickNameChange} onKeyDown={onEnter} />
             </InputSet>
             <Btn onClick={onEdit}>변경</Btn>

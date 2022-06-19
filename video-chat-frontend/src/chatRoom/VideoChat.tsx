@@ -5,7 +5,7 @@ import Stomp from "stompjs";
 import { FaRegPaperPlane } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router";
 import axios, { AxiosError } from "axios";
-import handleAxiosException from "../handleException/handleAxiosException";
+import handleAxiosException from "../exception/handleAxiosException";
 
 const InputPanel = styled.div`
     position: sticky;

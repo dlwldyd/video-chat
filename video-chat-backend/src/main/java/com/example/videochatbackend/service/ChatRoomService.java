@@ -66,9 +66,9 @@ public class ChatRoomService {
         joinUser.setStreamId(chatDto.getStreamId());
     }
 
-    public ChatDto leave(String simpSessionId) {
+    public ChatDto leave(String sessionId) {
         try {
-            JoinUser joinUser = joinUserRepository.findBySessionId(simpSessionId).orElseThrow(() -> new RuntimeException("already disconnected"));
+            JoinUser joinUser = joinUserRepository.findBySessionId(sessionId).orElseThrow(() -> new RuntimeException("already disconnected"));
             ChatRoom chatRoom = joinUser.getChatRoom();
             chatRoom.setCount(chatRoom.getCount() - 1);
             joinUserRepository.delete(joinUser);

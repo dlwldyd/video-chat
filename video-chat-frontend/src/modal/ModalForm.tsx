@@ -26,11 +26,13 @@ function ModalForm({isOpen, setIsOpen, content}: ModalInfo) {
                 backgroundColor: 'rgba(0, 0, 0, 0.75)'
                 },
                 content: {
+                width: '500px',
+                height: '300px',
                 position: 'absolute',
-                top: '350px',
-                left: '700px',
-                right: '700px',
-                bottom: '350px',
+                top: '50%',
+                left: '50%',
+                marginLeft: '-250px',
+                marginTop: '-150px',
                 border: '1px solid #ccc',
                 background: '#fff',
                 overflow: 'auto',

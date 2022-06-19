@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
-import handleAxiosException from "../handleException/handleAxiosException";
+import handleAxiosException from "../exception/handleAxiosException";
 
 const Box = styled.div`
     width: 100%;

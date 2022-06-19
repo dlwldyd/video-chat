@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router';
 import queryString from 'query-string';
 import { Link } from "react-router-dom";
 import ModalForm from "../modal/ModalForm";
-import handleAxiosException from "../handleException/handleAxiosException";
+import handleAxiosException from "../exception/handleAxiosException";
 
 const Container = styled.div`
     font-family: ${props => props.theme.font};

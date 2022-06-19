@@ -1,6 +1,7 @@
 package com.example.videochatbackend.domain.entity;
 
 import com.example.videochatbackend.domain.dto.ChatRoomDto;
+import com.example.videochatbackend.domain.exception.PasswordMismatchException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,13 +51,16 @@ public class ChatRoom {
     }
 
     public static ChatRoom create(ChatRoomDto chatRoomDto, PasswordEncoder passwordEncoder) {
-        if (chatRoomDto.getPassword().isEmpty()) {
+        if (chatRoomDto.getPassword().isEmpty() || chatRoomDto.getPassword() == null) {
             return new ChatRoom(chatRoomDto.getRoomName(), UUID.randomUUID().toString(), 0);
         }
         return new ChatRoom(chatRoomDto.getRoomName(), passwordEncoder.encode(chatRoomDto.getPassword()), UUID.randomUUID().toString(), 0);
     }
 
     public boolean validate(String password, PasswordEncoder passwordEncoder) {
+        if (password == null) {
+            throw new PasswordMismatchException("패스워드가 일치하지 않습니다.");
+        }
         return passwordEncoder.matches(password, this.password);
     }
 }

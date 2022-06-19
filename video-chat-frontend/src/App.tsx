@@ -1,13 +1,15 @@
-import Login from './login/Login';
+import Login from './Auth/Login';
 import Home from './home/Home';
-import FetchMemberInfo from './login/FetchMemberInfo';
+import FetchMemberInfo from './Auth/FetchMemberInfo';
 import VideoChat from './chatRoom/VideoChat';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 import SearchRoom from './chatRoom/SearchRoom';
+import ValidateAuth from './Auth/ValidateAuth';
 
 function App() {
   
@@ -17,8 +19,8 @@ function App() {
         <Route path="/" element={<Home/>} />
         <Route path='/login' element={<Login/>} />
         <Route path='/fetch' element={<FetchMemberInfo/>} />
-        <Route path='/video-chat' element={<VideoChat/>} />
-        <Route path='/search' element={<SearchRoom />} />
+        <Route path='/video-chat' element={<ValidateAuth element={<VideoChat />} />} />
+        <Route path='/search' element={<ValidateAuth element={<SearchRoom />} />} />
       </Routes>
     </Router>
   );
