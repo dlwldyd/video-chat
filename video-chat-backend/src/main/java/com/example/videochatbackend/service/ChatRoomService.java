@@ -28,33 +28,6 @@ public class ChatRoomService {
 
     private final PasswordEncoder passwordEncoder;
 
-//    @PostConstruct
-//    public void init() {
-//        for (int i = 0; i < 200; i++) {
-//            ChatRoom chatRoom = new ChatRoom("tmp", "tmp1", 1);
-//            chatRoomRepository.save(chatRoom);
-//        }
-//        for (int i = 0; i < 200; i++) {
-//            ChatRoom chatRoom = new ChatRoom("abc", "tmp2", 1);
-//            chatRoomRepository.save(chatRoom);
-//        }
-//        for (int i = 0; i < 200; i++) {
-//            ChatRoom chatRoom = new ChatRoom("def", "tmp3", 1);
-//            chatRoomRepository.save(chatRoom);
-//        }
-//        for (int i = 0; i < 200; i++) {
-//            ChatRoom chatRoom = new ChatRoom("ghi", "tmp4", 1);
-//            chatRoomRepository.save(chatRoom);
-//        }
-//        for (int i = 0; i < 200; i++) {
-//            ChatRoom chatRoom = new ChatRoom("jkl", "tmp5", 1);
-//            chatRoomRepository.save(chatRoom);
-//        }
-//        for (int i = 0; i < 200; i++) {
-//            ChatRoom chatRoom = new ChatRoom("mno", "tmp6", 1);
-//            chatRoomRepository.save(chatRoom);
-//        }
-//    }
     public ChatRoomKeyDto createRoom(ChatRoomDto chatRoomDto) {
         ChatRoom chatRoom = ChatRoom.create(chatRoomDto, passwordEncoder);
         chatRoomRepository.save(chatRoom);

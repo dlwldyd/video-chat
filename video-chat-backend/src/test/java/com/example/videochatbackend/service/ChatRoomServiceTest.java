@@ -12,6 +12,7 @@ import com.example.videochatbackend.domain.exception.RoomNotFoundException;
 import com.example.videochatbackend.repository.JoinUserRepository;
 import com.example.videochatbackend.repository.chatRoom.ChatRoomRepository;
 import com.example.videochatbackend.security.member.MemberDetails;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,16 +45,21 @@ class ChatRoomServiceTest {
     @Spy
     private PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-    @Test
-    void getRoomKeyTest() {
+    private ChatRoomDto chatRoomDto = new ChatRoomDto();
 
-        ChatRoomKeyDto chatRoomKeyDto = new ChatRoomKeyDto();
-        chatRoomKeyDto.setPassword("osdjif");
-        chatRoomKeyDto.setRoomId(1L);
+    private ChatRoomKeyDto chatRoomKeyDto = new ChatRoomKeyDto();
 
-        ChatRoomDto chatRoomDto = new ChatRoomDto();
+    @BeforeEach
+    void beforeEach() {
         chatRoomDto.setRoomName("tmp");
         chatRoomDto.setPassword("tmp");
+
+        chatRoomKeyDto.setPassword("osdjif");
+        chatRoomKeyDto.setRoomId(1L);
+    }
+
+    @Test
+    void getRoomKeyTest() {
 
         ChatRoom chatRoom = ChatRoom.create(chatRoomDto, passwordEncoder);
         chatRoom.setCount(9);
