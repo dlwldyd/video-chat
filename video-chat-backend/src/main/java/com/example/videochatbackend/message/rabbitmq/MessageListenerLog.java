@@ -5,7 +5,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 @Slf4j
 public class MessageListenerLog implements MessageListener {
 

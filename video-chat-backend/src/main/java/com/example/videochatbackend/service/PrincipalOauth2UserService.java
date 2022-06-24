@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 //액세스 토큰을 받기까지의 과정을 oauth2-client 가 전부 자동화해준다.
 //여기에서는 authorization server 로 부터 받은 액세스 토큰과 유저 정보를 다룬다.
@@ -50,7 +51,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         String email = oAuthUserInfo.getEmail();
         String nickname = oAuthUserInfo.getName();
         String username = provider + "_" + providerId;
-        String password = "ocj5df!983@5f";
+        String password = UUID.randomUUID().toString();
 
         Optional<Member> byUsername = memberRepository.findByUsername(username);
 

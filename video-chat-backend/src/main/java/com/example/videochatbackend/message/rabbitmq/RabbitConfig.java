@@ -20,7 +20,7 @@ public class RabbitConfig {
 
     private static final String routingKey = "room.*";
 
-    private final MessageListener messageListener;
+//    private final MessageListener messageListener;
 
     //Queue 등록
     @Bean
@@ -53,7 +53,7 @@ public class RabbitConfig {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory()); // connectionFactory 의 설정대로 rabbitmq 와 연결됨
         container.setQueueNames(chatQueueName); // 메세지 리스너가 해당하는 큐를 listen 함, 여러 큐 지정 가능
-        container.setMessageListener(messageListener); // 메세지 리스너 등록
+//        container.setMessageListener(messageListener); // 메세지 리스너 등록
         return container;
     }
 
