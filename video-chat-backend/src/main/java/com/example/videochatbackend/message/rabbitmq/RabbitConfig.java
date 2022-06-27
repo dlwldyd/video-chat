@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +20,12 @@ public class RabbitConfig {
     private static final String chatExchangeName = "chat.exchange";
 
     private static final String routingKey = "room.*";
+
+    @Value("${rabbitUsername}")
+    private String rabbitUsername;
+
+    @Value("${rabbitPwd}")
+    private String rabbitPwd;
 
 //    private final MessageListener messageListener;
 
@@ -52,7 +59,7 @@ public class RabbitConfig {
     public SimpleMessageListenerContainer container(){
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory()); // connectionFactory 의 설정대로 rabbitmq 와 연결됨
-        container.setQueueNames(chatQueueName); // 메세지 리스너가 해당하는 큐를 listen 함, 여러 큐 지정 가능
+//        container.setQueueNames(chatQueueName); // 메세지 리스너가 해당하는 큐를 listen 함, 여러 큐 지정 가능
 //        container.setMessageListener(messageListener); // 메세지 리스너 등록
         return container;
     }
@@ -61,8 +68,9 @@ public class RabbitConfig {
     public ConnectionFactory connectionFactory(){
         CachingConnectionFactory factory = new CachingConnectionFactory();
         factory.setHost("localhost");
-        factory.setUsername("guest");
-        factory.setPassword("guest");
+        factory.setPort(61613);
+        factory.setUsername(rabbitUsername);
+        factory.setPassword(rabbitPwd);
         return factory;
     }
 

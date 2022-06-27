@@ -14,15 +14,12 @@ import org.springframework.web.socket.config.annotation.*;
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Value("${origins}")
-    private String origins;
-
     private final ChannelInterceptor channelInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/stomp")
-                .setAllowedOrigins(origins)
+                .setAllowedOrigins("*")
                 .withSockJS();
     }
 

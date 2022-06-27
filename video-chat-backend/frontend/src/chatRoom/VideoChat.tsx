@@ -222,6 +222,7 @@ function VideoChat() {
                         })
                     }
                 });
+                videoConn();
             })
         };
     
@@ -241,7 +242,6 @@ function VideoChat() {
         }
 
         const videoConn = async () => {
-            handleStompConnection();
             try{
                 if(!videoEl.current) {
                     alert("비디오를 불러오는데 실패했습니다.");
@@ -343,7 +343,7 @@ function VideoChat() {
             });
         };
 
-        videoConn();
+        handleStompConnection();
 
         return leave;
 

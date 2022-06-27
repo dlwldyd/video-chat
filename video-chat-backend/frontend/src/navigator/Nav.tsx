@@ -234,28 +234,19 @@ function Nav() {
             await axios.get(`${myData.domain}/api/changeNickname?nickname=${nickname}`, {
                 withCredentials: true,
             });
+            console.log("1");
             sessionStorage.setItem("nickname", nickname);
             setCurNickname(nickname => sessionStorage.getItem("nickname"));
-            alert("닉네임을 변경하였습니다.");
             setEditNicknameOpen(editNicknameOpen => false);
             setNickname(nickname => "");
         } catch(err: unknown | AxiosError) {
+            console.log("2");
             handleAxiosException(err);
         }
     }
 
-
-    const onEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if(event.key === "Enter") {            
-            if(nickname === "") {
-                alert("닉네임을 입력해주세요");
-            } else {                
-                changeNickname();
-            }
-        }
-    }
-
     const onEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
         if(nickname === "") {
             alert("닉네임을 입력해주세요");
         } else {
@@ -279,7 +270,7 @@ function Nav() {
         <ModalContainer>
             <InputSet>
                 <Label htmlFor="nickname">현재 닉네임 : {curNickname}</Label>
-                <Input placeholder="변경할 닉네임을 입력해주세요" value={nickname} id="nickname" onChange={onNickNameChange} onKeyDown={onEnter} />
+                <Input placeholder="변경할 닉네임을 입력해주세요" value={nickname} id="nickname" onChange={onNickNameChange} />
             </InputSet>
             <Btn onClick={onEdit}>변경</Btn>
         </ModalContainer>

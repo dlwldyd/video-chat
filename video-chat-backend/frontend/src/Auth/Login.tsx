@@ -1,6 +1,8 @@
+import axios, { AxiosError } from "axios";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
-import { useEffect } from 'react';
 import myData from "../data/data";
+import handleAxiosException from "../exception/handleAxiosException";
 
 const LoginContainer = styled.div`
     width: 100%;
@@ -32,30 +34,69 @@ const NaverLogin = styled.img`
     height: 90px;
 `
 
+const NoLogin = styled.button`
+    all: unset;
+    font-family: ${props => props.theme.font};
+    font-size: 30px;
+    width: 390px;
+    height: 90px;
+    border-radius: 6px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    &:hover {
+        cursor: pointer;
+    }
+`
+
 const Head = styled.div`
     font-size: 80px;
-    margin-bottom: 50px;
+    margin-bottom: 30px;    
 `
 
 function Login() {
 
+    const navigate = useNavigate();
+
     const publicUrl = process.env.PUBLIC_URL;
 
-    useEffect(() => {
-        
-    }, []);
+    const onClick = async () => {
+        try{
+            const { username, password } = await (await axios.get(`${myData.domain}/tmp/member`)).data;
+            const form = new FormData();
+            form.append("username", username);
+            form.append("password", password);
+            const status = (await axios.post(`${myData.domain}/login`, form)).status;
+            if(status === 200) {
+                navigate("/fetch");
+            }
+        } catch(err: unknown | AxiosError) {
+            handleAxiosException(err);
+            navigate("/");
+        }
+    }
 
     return (
         <LoginContainer>
             <LoginBox>
                 <Head>로그인</Head>
-                <a href={`${myData.domain}/oauth2/authorization/google?redirect_uri=${myData.domain}`}>
+                <a href={`${myData.domain}/oauth2/authorization/google`}>
                     <GoogleLogin src={`${publicUrl}/web/2x/btn_google_signin_light_normal_web@2x.png`} alt=""></GoogleLogin>
                 </a>
-                <a href={`${myData.domain}/oauth2/authorization/naver?redirect_uri=${myData.domain}`}>
+                <a href={`${myData.domain}/oauth2/authorization/naver`}>
                     <NaverLogin src={`${publicUrl}/2021_Login_with_naver_guidelines_En/btnG_official.png`} alt=""></NaverLogin>
                 </a>
+                <NoLogin onClick={onClick}>로그인 없이 체험하기</NoLogin>
             </LoginBox>
+            {/* <div>
+                <form action="/login" method="post">
+                    <input type="text" placeholder="아이디" name="username"/>
+                    <input type="password" placeholder="비밀번호" name="password"/>
+                    <input type="submit" value="로그인"/>
+                </form>
+            </div> */}
         </LoginContainer>
     );
 }
