@@ -234,13 +234,11 @@ function Nav() {
             await axios.get(`${myData.domain}/api/changeNickname?nickname=${nickname}`, {
                 withCredentials: true,
             });
-            console.log("1");
             sessionStorage.setItem("nickname", nickname);
             setCurNickname(nickname => sessionStorage.getItem("nickname"));
             setEditNicknameOpen(editNicknameOpen => false);
             setNickname(nickname => "");
         } catch(err: unknown | AxiosError) {
-            console.log("2");
             handleAxiosException(err);
         }
     }

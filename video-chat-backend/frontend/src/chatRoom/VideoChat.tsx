@@ -178,6 +178,8 @@ function VideoChat() {
                 },
             });
             stomp.current = Stomp.over(ws);
+            stomp.current.heartbeat.outgoing = 1000;
+            stomp.current.heartbeat.incoming = 1000;
             stomp.current.connect({}, () => {
                 enterRoom(sessionId);
                 stomp.current?.subscribe(`/exchange/chat.exchange/room.${roomKey}`, (message) => {

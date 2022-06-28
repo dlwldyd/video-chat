@@ -17,13 +17,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Value("${origins}")
     private String origin;
 
+    @Value("${rabbitUsername}")
+    private String rabbitUsername;
+
+    @Value("${rabbitPwd}")
+    private String rabbitPwd;
+
     private final ChannelInterceptor channelInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/stomp")
                 .setAllowedOrigins(origin)
-                .withSockJS();
+                .withSockJS()
+                .setHeartbeatTime(1000);
     }
 
     @Override
@@ -31,7 +38,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry
                 .setPathMatcher(new AntPathMatcher("."))
                 .setApplicationDestinationPrefixes("/chat")
-                .enableStompBrokerRelay("/queue", "/topic", "/exchange", "/amq/queue");
+                .enableStompBrokerRelay("/queue", "/topic", "/exchange", "/amq/queue")
+                .setSystemLogin(rabbitUsername)
+                .setSystemPasscode(rabbitPwd)
+                .setClientLogin(rabbitUsername)
+                .setClientPasscode(rabbitPwd);
     }
 
     @Override

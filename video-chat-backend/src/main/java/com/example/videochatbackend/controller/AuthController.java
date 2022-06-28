@@ -3,6 +3,7 @@ package com.example.videochatbackend.controller;
 import com.example.videochatbackend.domain.dto.TmpMemberDto;
 import com.example.videochatbackend.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final MemberService memberService;
