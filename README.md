@@ -1,5 +1,6 @@
 # [개인프로젝트] 화상 채팅 웹사이트
 데모 : https://awsvideochat.tk
+>무료 도메인이라 그런지 간혹 접속이 안될 때가 있습니다.ㅠ
 # 사용 방법
 ## 1.로그인
 >구글, 네이버로 로그인 할 수 있습니다.
@@ -73,9 +74,22 @@ __구조는 다음과 같습니다.__
 __구조는 다음과 같습니다.__
 
 * domain > entity : 엔티티를 관리한다.
-  - ChatRoom : 채팅룸 엔티티
-  - JoinUser : 채팅룸에 참여한 유저 엔티티
-  - Member : 서비스에 가입한 회원 엔티티
+  - __ChatRoom : 채팅룸 엔티티__
+
+    <img src="./img/ChatRoom.png">
+
+    + password는 해당 방에 입장하기 위한 패스워드입니다.
+    + roomKey는 rabbitMQ의 라우팅 키입니다.
+    + count는 해당 방에 입장한 인원입니다.
+  - __JoinUser : 채팅룸에 참여한 유저 엔티티__
+
+    <img src="./img/JoinUser.png">
+
+    + sessionID는 웹소켓 세션 아이디입니다. STOMP의 연결이 끊길 때 해당 STOMP 세션이 어떤 유저의 세션인지 구분하기 위해 사용됩니다.
+    + streamId는 media stream의 id입니다. 카메라 및 오디오 권한을 거절해도 방에 참여할 수 있기 때문에 해당 값은 null이 될 수 있습니다. 사용자가 어떤 방에서 나갔을 때 해당 방에있는 다른 사용자들이 어떤 media stream을 제거해야할 지 구분하기 위해 사용됩니다.
+  - __Member : 서비스에 가입한 회원 엔티티__
+
+    <img src="./img/Member.png">
 * repository
   - chatRoom
     + chatRoomRepository(JPA 인터페이스)
@@ -112,3 +126,10 @@ __구조는 다음과 같습니다.__
 >webRTC를 통해 P2P로 사용자 간에 화상통신이 가능하도록 한다.
 
 __구조는 다음과 같습니다.__
+
+<img src="./img/webrtc-ppt.jpg">
+
+* 사용자는 채팅방에 접속 시 signaling 서버를 통해 다른 사용자와 p2p 연결을 맺습니다.
+* 각 사용자는 Map에 다른 사용자의 username을 key로 해서 다른 사용자와의 RTC connection을 관리합니다. 만약 다른 사용자가 방에서 나가게 되면 Map에서 해당 사용자의 username으로 RTC connection을 찾아 연결을 닫습니다.
+* 각 사용자는 Map에 media stream의 id를 key로 해서 다른 사용자의 media stream을 관리합니다. 만약 다른 사용자가 방에서 나가게 되면 Map에서 해당 사용자의 media stream의 id으로 media stream을 찾아 제거합니다. 
+* 각 방에는 최대 9명 까지 사용자가 접속이 가능합니다.

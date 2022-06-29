@@ -41,7 +41,7 @@ public class ChatRoomService {
 
     public ChatDto leave(String sessionId) {
         try {
-            JoinUser joinUser = joinUserRepository.findBySessionIdForCntDown(sessionId).orElseThrow(() -> new RuntimeException("already disconnected"));
+            JoinUser joinUser = joinUserRepository.findBySessionIdForCntDown(sessionId).orElseThrow(AlreadyDisconnectedException::new);
             ChatRoom chatRoom = joinUser.getChatRoom();
             chatRoom.setCount(chatRoom.getCount() - 1);
             joinUserRepository.delete(joinUser);
@@ -49,8 +49,7 @@ public class ChatRoomService {
                 chatRoomRepository.delete(chatRoom);
             }
             return ChatDto.leave(chatRoom.getRoomKey(), joinUser.getStreamId(), joinUser.getUsername());
-        } catch (RuntimeException e) {
-            log.info(e.getMessage());
+        } catch (AlreadyDisconnectedException e) {
         }
         return null;
     }
