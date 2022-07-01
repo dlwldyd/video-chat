@@ -90,13 +90,6 @@ function Login() {
                 </a>
                 <NoLogin onClick={onClick}>로그인 없이 체험하기</NoLogin>
             </LoginBox>
-            {/* <div>
-                <form action="/login" method="post">
-                    <input type="text" placeholder="아이디" name="username"/>
-                    <input type="password" placeholder="비밀번호" name="password"/>
-                    <input type="submit" value="로그인"/>
-                </form>
-            </div> */}
         </LoginContainer>
     );
 }
