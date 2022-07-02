@@ -29,6 +29,9 @@ public class MemberService {
         return new MemberInfoDto(member);
     }
 
+    /**
+     * 유저의 닉네임을 변경한다.
+     */
     public void changeNickname(String username, String nickname) {
         if (nickname.isEmpty()) {
             throw new EmptyNicknameException("닉네입을 입력해주세요");
@@ -37,6 +40,9 @@ public class MemberService {
         member.setNickname(nickname);
     }
 
+    /**
+     * 로그인 없이 체험하기를 위한 메서드이다. 유저를 하나 생성한 후 폼 로그인을 통해 로그인함
+     */
     public TmpMemberDto createTmpMember() {
         String username = UUID.randomUUID().toString();
         String password = UUID.randomUUID().toString();

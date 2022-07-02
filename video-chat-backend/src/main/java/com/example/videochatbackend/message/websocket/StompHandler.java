@@ -32,6 +32,7 @@ public class StompHandler implements ChannelInterceptor {
 
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
+        //type이 join인 메세지를 받으면 join_user 테이블에 미디어 스트림을 데이터베이스에 저장한다.
         if (accessor.getCommand() == StompCommand.SEND) {
             ChatDto chatDto = (ChatDto) messageConverter.fromMessage(message, ChatDto.class);
             String type = chatDto != null ? chatDto.getType() : null;
@@ -42,6 +43,8 @@ public class StompHandler implements ChannelInterceptor {
                     log.info("NoSuchUserException : {}", e.getMessage());
                 }
             }
+        // 유저의 STOMP 연결이 끊긴다면 해당 세션 아이디에 해당하는 유저를 join_user 테이블에서 삭제하고 그 유저가 있던 방의 인원을 1감소시킨다.
+        // 또한 해당 방에 있는 클라이언트들에게 그 유저가 방에서 나갔음을 알린다.
         } else if (accessor.getCommand() == StompCommand.DISCONNECT) {
             ChatDto chatDto = chatRoomService.leave((String) message.getHeaders().get("simpSessionId"));
             if (chatDto != null) {
