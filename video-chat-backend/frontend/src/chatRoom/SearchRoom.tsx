@@ -207,6 +207,7 @@ function SearchRoom() {
 
     const roomId = useRef<string | null>("");
 
+    // 클릭 시 서버로 채팅룸의 id와 비밀번호를 보내 해당 방에 해당하는 라우팅키를 받는다.
     const getRoomKey = async (roomId: string | null) => {
         try {
             const {roomKey} = await (await axios.post(`${myData.domain}/api/getRoomKey`, {
@@ -222,11 +223,12 @@ function SearchRoom() {
         
     }
 
-    const onClick = (event: ClickEvent) => {
-        
+    //비밀번호 없는 채팅룸 클릭
+    const onClick = (event: ClickEvent) => {        
         getRoomKey(event.target.getAttribute("data-roomid"));
     }
 
+    //비밀번호 있는 채팅룸 클릭
     const onClickLocked = (event: ClickEvent) => {
         roomId.current = event.target.getAttribute("data-roomid");
         setPwOpen(pwOpen => true);
@@ -267,6 +269,7 @@ function SearchRoom() {
         getRoomKey(roomId.current);
     }
 
+    //채팅룸 검색 모달
     const searchModal = (
         <ModalContainer>
             <InputText>
@@ -277,6 +280,7 @@ function SearchRoom() {
         </ModalContainer>
     );
 
+    //채팅룸 비밀번호 입력 모달
     const passwordModal = (
         <ModalContainer>
             <InputText>

@@ -62,6 +62,7 @@ function Login() {
 
     const publicUrl = process.env.PUBLIC_URL;
 
+    //로그인 없이 체험하기
     const onClick = async () => {
         try{
             const { username, password } = await (await axios.get(`${myData.domain}/tmp/member`)).data;

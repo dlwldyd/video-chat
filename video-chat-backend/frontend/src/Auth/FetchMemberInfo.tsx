@@ -22,6 +22,7 @@ function FetchMemberInfo() {
 
     const navigate = useNavigate();
 
+    // 서버로부터 사용자 로그인 정보를 가져와서 세션 스토리지에 저장한다.
     useEffect(() => {
         const getMemberInfo = async () => {
             const json = await (await axios.get(`${myData.domain}/api/memberInfo`, {

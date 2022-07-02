@@ -163,13 +163,20 @@ function VideoChat() {
             ]
         };
 
+        /**
+         * UUID로 세션 아이디를 생성하는 함수
+         * @returns 
+         */
         const uuid = () => {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 var r = Math.random() * 16 | 0, v = c === 'x' ? r : ((r & 0x3) | 0x8);
                 return v.toString(16);
             });
         }
-            
+        
+        /**
+         * STOMP를 연결하고 subscribe 메세지를 보내는 함수
+         */
         const handleStompConnection = () => {
             const sessionId = uuid();
             const ws = new SockJS(`${myData.domain}/stomp`, [], {
@@ -228,7 +235,10 @@ function VideoChat() {
             })
         };
     
-
+        /**
+         * 채팅룸 참여 시 서버로 STOMP 세션 아이디를 보내는 함수
+         * @param sessionId 웹소켓 세션 아이디
+         */
         const enterRoom = (sessionId: string) => {
             try {
                 axios.post(`${myData.domain}/api/joinRoom`, {
@@ -243,6 +253,10 @@ function VideoChat() {
             }
         }
 
+        
+        /**
+         * 내 컴퓨터의 미디어 스트림을 얻어오고 서버로 join 메세지를 보내는 함수
+         */
         const videoConn = async () => {
             try{
                 if(!videoEl.current) {
@@ -271,6 +285,11 @@ function VideoChat() {
             }
         }
 
+        /**
+         * offer 메세지를 받은 후 answer 생성 후 서버로 answer 메세지를 보내는 함수
+         * @param target offer를 보낸 클라이언트의 username
+         * @param receivedOffer 상대방으로부터 받은 offer
+         */
         const makeAnswer = async (target: string, receivedOffer: RTCSessionDescriptionInit) => {
             const newPeerConnection = createPeerConnection(target);
             if(!newPeerConnection) {
@@ -282,6 +301,11 @@ function VideoChat() {
             stomp.current?.send(`/chat/room.${roomKey}`, {}, JSON.stringify({type: "answer", from, target, sdp: newPeerConnection.localDescription}));
         }
 
+        /**
+         * offer 메세지를 받은 후 offer 메세지를 보낸 클라이언트와의 peer connection을 생성하고 ice 교환을 위한 이벤트 리스너를 붙이고,
+         * 미디어 트랙을 peer connection에 더하는 ㅎ마수
+         * @param target peer connection에 연결할 상대방의 username
+         */
         const createPeerConnection = (target: string) => {
             if(!localStream.current) {
                 console.log("no media");
@@ -303,6 +327,10 @@ function VideoChat() {
             return newPeerConnection;
         }
 
+        /**
+         * 상대방으로 부터 join 메세지를 받았을 때 offer를 생성하고 peer connection을 생성 한 뒤 offer 메세지를 보내는 함수
+         * @param target peer connection로 연결할 상대방의 username
+         */
         const makeOffer = async (target: string) => {
             const newPeerConnection = createPeerConnection(target);
             if(!newPeerConnection) {
@@ -321,6 +349,9 @@ function VideoChat() {
             }
         }
 
+        /**
+         * 상대방으로부터 미디어 스트림을 받았을 때 해당 스트림을 Map에 저장하는 함수
+         */
         const handleTrack = (data: RTCTrackEvent) => {
             setRemoteStreams(remoteStreams => {
                 const updated = new Map<string, MediaStream | null>(remoteStreams);
@@ -329,6 +360,9 @@ function VideoChat() {
             });
         }
 
+        /**
+         * peer connection 반대편의 상대방과 연결이 끊겼을 때 peer connection을 초기홯는 함수
+         */
         const disconnect = (peerConnection: RTCPeerConnection) => {
             peerConnection.onicecandidate = null;
             peerConnection.ontrack = null;
@@ -336,6 +370,9 @@ function VideoChat() {
             peerConnection.close();
         }
 
+        /**
+         * 채팅룸에서 나갈 대 실행하는 함수
+         */
         const leave = () => {
             stomp.current?.disconnect(() => {
                 myPeerConnections.forEach(myPeerConnection => disconnect(myPeerConnection));
@@ -357,6 +394,8 @@ function VideoChat() {
         }
     }, [receivedMsg]);
 
+    //Map에 저장된 미디어 스트림을 렌더링하기 위해 배열로 변환
+    //useEffect에서 변환하지 않으면 채팅을 칠 때마다 리렌더링 되서 영상이 깜빡거린다.
     useEffect(() => {
         setRemoteVideos(remoteVideos => Array.from(remoteStreams.values()).map((remoteStream, idx) => 
             <Stream key={idx}>
