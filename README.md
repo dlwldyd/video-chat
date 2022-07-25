@@ -44,6 +44,7 @@
 8. React
 9. Styled Component
 10. webRTC
+11. Recoil
 ## Spring Boot
 >React에서 요청한 데이터를 JSON으로 응답한다.
 

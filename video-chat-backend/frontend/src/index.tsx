@@ -5,6 +5,7 @@ import { ThemeProvider } from 'styled-components';
 import App from './App';
 import "./index.css"
 import Modal from 'react-modal';
+import { RecoilRoot } from 'recoil';
 
 const MyTheme = {
   color: {
@@ -25,10 +26,12 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
+  <React.StrictMode>    
+    <RecoilRoot>
       <ThemeProvider theme={MyTheme}>
         <App />
       </ThemeProvider>
+    </RecoilRoot>
   </React.StrictMode>
 );
 

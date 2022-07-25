@@ -7,6 +7,8 @@ import { useNavigate } from "react-router";
 import { FaUserEdit } from "react-icons/fa";
 import handleAxiosException from "../exception/handleAxiosException";
 import myData from "../data/data";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { loginStateAtom, nicknameAtom, usernameAtom } from "../Auth/state";
 
 const LeftButtonSet = styled.div`
     display: flex;
@@ -145,7 +147,9 @@ const NickNameEdit = styled.div`
 
 function Nav() {
 
-    const [loginState, setLoginState] = useState(sessionStorage.getItem("authenticated") === "true");
+    // const [loginState, setLoginState] = useState(sessionStorage.getItem("authenticated") === "true");
+
+    const [loginState, setLoginState] = useRecoilState(loginStateAtom);
 
     const [createRoomOpen, setCreateRoomOpen] = useState(false);
 
@@ -155,9 +159,13 @@ function Nav() {
 
     const [password, setPassword] = useState("");
 
-    const [nickname, setNickname] = useState("");
+    const [nicknameInput, setNicknameInput] = useState("");
 
-    const [curNickname, setCurNickname] = useState(sessionStorage.getItem("nickname"));
+    // const [curNickname, setCurNickname] = useState(sessionStorage.getItem("nickname"));
+
+    const [nickname, setNickname] = useRecoilState(nicknameAtom);
+
+    const setUsername = useSetRecoilState(usernameAtom);
 
     const navigate = useNavigate();
 
@@ -167,10 +175,12 @@ function Nav() {
                 await axios.get(`${myData.domain}/logout`, {
                     withCredentials: true
                 });
-                sessionStorage.setItem("authenticated", "false");
-                sessionStorage.removeItem("nickname");
-                sessionStorage.removeItem("email");
-                sessionStorage.removeItem("username");
+                // sessionStorage.setItem("authenticated", "false");
+                // sessionStorage.removeItem("nickname");
+                // sessionStorage.removeItem("email");
+                // sessionStorage.removeItem("username");
+                setNicknameInput(nickname => "");
+                setUsername(username => "");
                 setLoginState(loginState => false);
                 navigate("/", {replace: true});
             } catch(err: unknown | AxiosError) {
@@ -208,7 +218,7 @@ function Nav() {
     }
 
     const onNickNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setNickname(nickname => event.target.value);
+        setNicknameInput(nickname => event.target.value);
     }
 
     const onPassChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,13 +241,16 @@ function Nav() {
     
     const changeNickname = async () => {
         try {
-            await axios.get(`${myData.domain}/api/changeNickname?nickname=${nickname}`, {
+            const status = (await axios.get(`${myData.domain}/api/changeNickname?nickname=${nicknameInput}`, {
                 withCredentials: true,
-            });
-            sessionStorage.setItem("nickname", nickname);
-            setCurNickname(nickname => sessionStorage.getItem("nickname"));
-            setEditNicknameOpen(editNicknameOpen => false);
-            setNickname(nickname => "");
+            })).status;
+            if(status === 200) {
+                // sessionStorage.setItem("nickname", nickname);
+                setNickname(nickname => nicknameInput);
+                // setNickname(nickname => sessionStorage.getItem("nickname"));
+                setEditNicknameOpen(editNicknameOpen => false);
+                setNicknameInput(nickname => "");
+            }
         } catch(err: unknown | AxiosError) {
             handleAxiosException(err);
         }
@@ -245,7 +258,7 @@ function Nav() {
 
     const onEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        if(nickname === "") {
+        if(nicknameInput === "") {
             alert("닉네임을 입력해주세요");
         } else {
             changeNickname();
@@ -267,8 +280,8 @@ function Nav() {
     const editModal = (
         <ModalContainer>
             <InputSet>
-                <Label htmlFor="nickname">현재 닉네임 : {curNickname}</Label>
-                <Input placeholder="변경할 닉네임을 입력해주세요" value={nickname} id="nickname" onChange={onNickNameChange} />
+                <Label htmlFor="nickname">현재 닉네임 : {nickname}</Label>
+                <Input placeholder="변경할 닉네임을 입력해주세요" value={nicknameInput} id="nickname" onChange={onNickNameChange} />
             </InputSet>
             <Btn onClick={onEdit}>변경</Btn>
         </ModalContainer>

@@ -7,6 +7,8 @@ import { useLocation, useNavigate } from "react-router";
 import axios, { AxiosError } from "axios";
 import handleAxiosException from "../exception/handleAxiosException";
 import myData from "../data/data";
+import { useRecoilValue } from 'recoil';
+import { nicknameAtom, usernameAtom } from "../Auth/state";
 
 const InputPanel = styled.div`
     position: sticky;
@@ -146,13 +148,16 @@ function VideoChat() {
 
     const localStream = useRef<MediaStream>();
 
-    const nickname = sessionStorage.getItem("nickname");
+    // const nickname = sessionStorage.getItem("nickname");
+    const nickname = useRecoilValue(nicknameAtom);
 
     const navigate = useNavigate();
+    
+    const from = useRecoilValue(usernameAtom);
 
     useEffect(() => {
 
-        const from = sessionStorage.getItem("username");
+        // const from = sessionStorage.getItem("username");
 
         const myPeerConnections = new Map<string, RTCPeerConnection>();
 
