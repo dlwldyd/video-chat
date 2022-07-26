@@ -5,7 +5,7 @@ import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import myData from "../data/data";
 import handleAxiosException from "../exception/handleAxiosException";
-import { loginStateAtom, nicknameAtom, usernameAtom } from "./state";
+import { loginStateAtom, nicknameAtom, usernameAtom } from "./LoginState";
 
 const Box = styled.div`
     width: 100%;

@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useRecoilValue } from 'recoil';
-import { loginStateAtom } from "./state";
+import { loginStateAtom } from "./LoginState";
 
 interface ValidateAuthProps {
     element: JSX.Element;

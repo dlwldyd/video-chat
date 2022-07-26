@@ -8,7 +8,7 @@ import { FaUserEdit } from "react-icons/fa";
 import handleAxiosException from "../exception/handleAxiosException";
 import myData from "../data/data";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { loginStateAtom, nicknameAtom, usernameAtom } from "../Auth/state";
+import { loginStateAtom, nicknameAtom, usernameAtom } from "../Auth/LoginState";
 
 const LeftButtonSet = styled.div`
     display: flex;

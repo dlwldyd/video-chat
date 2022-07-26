@@ -8,7 +8,7 @@ import axios, { AxiosError } from "axios";
 import handleAxiosException from "../exception/handleAxiosException";
 import myData from "../data/data";
 import { useRecoilValue } from 'recoil';
-import { nicknameAtom, usernameAtom } from "../Auth/state";
+import { nicknameAtom, usernameAtom } from "../Auth/LoginState";
 
 const InputPanel = styled.div`
     position: sticky;
