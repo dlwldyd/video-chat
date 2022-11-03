@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor
@@ -28,6 +25,7 @@ public class Member {
 
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     public Member(String username, String password, String email, String nickname, Role role, PasswordEncoder passwordEncoder) {

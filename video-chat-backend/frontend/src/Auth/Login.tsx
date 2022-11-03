@@ -69,7 +69,7 @@ function Login() {
             const form = new FormData();
             form.append("username", username);
             form.append("password", password);
-            const status = (await axios.post(`${myData.domain}/login`, form)).status;
+            const status = (await axios.post(`${myData.domain}/login`, form, {withCredentials: true})).status;
             if(status === 200) {
                 navigate("/fetch");
             }

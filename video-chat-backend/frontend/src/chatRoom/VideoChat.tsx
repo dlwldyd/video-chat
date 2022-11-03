@@ -91,6 +91,11 @@ const ChatLog = styled.div`
     overflow: auto;    
 `
 
+const MutedVideo = styled.video.attrs({autoPlay: true, playsInline: true, width: 640, height: 320, muted: true})`
+    width: 100%;
+    height: 100%;
+`
+
 const Video = styled.video.attrs({autoPlay: true, playsInline: true, width: 640, height: 320})`
     width: 100%;
     height: 100%;
@@ -270,7 +275,7 @@ function VideoChat() {
                     return;
                 }
                 localStream.current = await navigator.mediaDevices.getUserMedia({
-                    audio: true,
+                    audio: {echoCancellation: true},
                     video: {
                         facingMode: "user"
                     },
@@ -376,7 +381,7 @@ function VideoChat() {
         }
 
         /**
-         * 채팅룸에서 나갈 대 실행하는 함수
+         * 채팅룸에서 나갈 때 실행하는 함수
          */
         const leave = () => {
             stomp.current?.disconnect(() => {
@@ -438,7 +443,7 @@ function VideoChat() {
         <div>
             <VideoGrid>
                 <Stream>
-                    <Video ref={videoEl} />
+                    <MutedVideo ref={videoEl} />
                 </Stream>
                 {remoteVideos}
             </VideoGrid>

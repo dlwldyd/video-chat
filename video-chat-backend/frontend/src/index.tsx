@@ -26,15 +26,16 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>    
+  // <React.StrictMode>    
     <RecoilRoot>
       <ThemeProvider theme={MyTheme}>
         <App />
       </ThemeProvider>
     </RecoilRoot>
-  </React.StrictMode>
+  // </React.StrictMode>
 );
 
 Modal.setAppElement('#root');
+axios.defaults.withCredentials = true;
 axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
 axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
