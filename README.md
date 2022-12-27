@@ -1,30 +1,27 @@
 # [개인프로젝트] 화상 채팅 웹사이트
-데모 : https://awsvideochat.tk
->1. 무료 도메인이라 그런지 간혹 접속이 안될 때가 있습니다.<br>
->2. 특정 브라우저에서 echo cancellation이 먹히지 않아 하울링이 발생할 수 있습니다. ex) 마이크로소프트 엣지
-# 사용 방법
-## 1.로그인
+## 사용 방법
+### 1.로그인
 >구글, 네이버로 로그인 할 수 있습니다.
 
 <img src="./img/login.png">
 
-## 2.닉네임 변경
+### 2.닉네임 변경
 >닉네임을 변경할 수 있습니다.
 
 <img src="./img/change-nickname.png">
 
-## 3.채팅방 생성
+### 3.채팅방 생성
 >채팅방을 생성할 수 있습니다.
 
 <img src="./img/create-chat-room.png">
 
-## 4.화상 채팅
+### 4.화상 채팅
 >화상채팅을 할 수 있습니다.<br>
 >카메라와 오디오가 없는 경우에는 일반 채팅을 통해서 대화할 수 있습니다.
 
 <img src="./img/video-chat.png">
 
-## 5.채팅 참여
+### 5.채팅 참여
 >현재 생성되어 있는 채팅방 목록을 확인할 수 있습니다.<br>
 >채팅방에 비밀번호가 걸려있는 경우에는 비밀번호를 입력해야지만 입장이 가능합니다.<br>
 >채팅방 이름을 통해 검색이 가능합니다.
@@ -32,8 +29,8 @@
 <img src="./img/search-room.png">
 <img src="./img/search.png">
 
-# 프로젝트 구조
-## 사용한 기술스택
+## 프로젝트 구조
+### 사용한 기술스택
 1. Spring Boot
 2. Spring Security
 3. Spring Websocket(STOMP)
@@ -45,7 +42,7 @@
 9. Styled Component
 10. webRTC
 11. Recoil
-## Spring Boot
+### Spring Boot
 >React에서 요청한 데이터를 JSON으로 응답한다.
 
 __구조는 다음과 같습니다.__
@@ -69,7 +66,7 @@ __구조는 다음과 같습니다.__
     3. OAuth 로그인을 허용했습니다.
   - member : 로그인 성공 시 반환되는 UserDetails, OAuth2User의 구현체를 관리합니다.
   - provider : OAuth 로그인 시 사용자의 프로파일 정보를 가져올 수 있는 인터페이스와 각 소셜 로그인별 구현체를 관리합니다.
-## JPA / QueryDSL
+### JPA / QueryDSL
 >JPA와 QueryDSL을 사용하여 데이터베이스에 대한 CRUD 작업을 수행한다.<br><br>
 >JPA : DB에서 데이터를 조회한다.<br>
 >QueryDSL : JPA 만으로 처리하기 힘든 동적 쿼리는 QueryDSL로 작성한다.
@@ -100,7 +97,7 @@ __구조는 다음과 같습니다.__
     + chatRoomRepositoryCustomImpl(QueryDSL 구현체)
   - JoinUserRepository
   - MemberRepository
-## Spring WebSocket(STOMP) / RabbitMQ
+### Spring WebSocket(STOMP) / RabbitMQ
 >webRTC의 P2P연결을 위한 signaling server를 구축한다.<br>
 >사용자 간에 메세지를 전달한다.
 
@@ -116,7 +113,7 @@ __구조는 다음과 같습니다.__
     + WebSocketConfig : 웹소켓에 대한 설정을 관리합니다.
       1. SockJS 기반으로 STOMP를 사용해 웹소켓을 지원하지 않는 브라우저도 STOMP 연결이 가능하도록 했습니다.
       2. 허용된 도메인에서만 STOMP 연결이 가능하도록 했습니다.
-## React
+### React
 >사용자가 서버와 상호작용할 수 있도록 한다.
 
 __구조는 다음과 같습니다.__
@@ -129,7 +126,7 @@ __구조는 다음과 같습니다.__
 * modal : 재사용할 수 있도록 모듈화한 모달을 관리합니다.
 * navigator : 네비게이션바를 관리합니다.
 * styles : 폰트 등 스타일과 관련된 파일을 관리합니다.
-## webRTC
+### webRTC
 >webRTC를 통해 P2P로 사용자 간에 화상통신이 가능하도록 한다.
 
 __구조는 다음과 같습니다.__
