@@ -54,7 +54,7 @@ __구조는 다음과 같습니다.__
 * repository : 데이터베이스에 접근하기 위한 JPA/QueryDSL을 관리합니다.
 * security : security, OAuth 관련 기능을 관리합니다.
 * service : 비즈니스 로직을 관리합니다.
-## Spring Security / OAuth2.0
+### Spring Security / OAuth2.0
 >인가된 사용자만이 특정 리소스에 접근할 수 있도록 제한한다.
 
 __구조는 다음과 같습니다.__
