@@ -28,10 +28,10 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ChatRoomServiceTest {
+class ChatRoomServiceImplTest {
 
     @InjectMocks
-    private ChatRoomService chatRoomService;
+    private ChatRoomServiceImpl chatRoomService;
 
     @Mock
     private ChatRoomRepository chatRoomRepository;

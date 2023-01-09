@@ -3,7 +3,7 @@ package com.example.videochatbackend.controller;
 import com.example.videochatbackend.domain.dto.ChatRoomDto;
 import com.example.videochatbackend.domain.dto.ChatRoomKeyDto;
 import com.example.videochatbackend.domain.exception.BeanValidationException;
-import com.example.videochatbackend.service.ChatRoomService;
+import com.example.videochatbackend.service.ChatRoomServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,7 +22,7 @@ class ChatRoomControllerTest {
     private ChatRoomController chatRoomController;
 
     @Mock
-    private ChatRoomService chatRoomService;
+    private ChatRoomServiceImpl chatRoomService;
 
     @Mock
     private BindingResult bindingResult;

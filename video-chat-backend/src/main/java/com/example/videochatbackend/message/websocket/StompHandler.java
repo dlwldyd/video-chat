@@ -32,6 +32,8 @@ public class StompHandler implements ChannelInterceptor {
 
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
+//        log.info("{}", accessor.getUser());
+
         //type이 join인 메세지를 받으면 join_user 테이블에 미디어 스트림을 데이터베이스에 저장한다.
         if (accessor.getCommand() == StompCommand.SEND) {
             ChatDto chatDto = (ChatDto) messageConverter.fromMessage(message, ChatDto.class);
